@@ -1,0 +1,791 @@
+# Copyright (C) 2017 WooCommerce maxiPago!
+# This file is distributed under the same license as the WooCommerce maxiPago! package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WooCommerce maxiPago! 0.2.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/woocommerce-"
+"maxipago\n"
+"POT-Creation-Date: 2017-01-23 15:26-0200\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2017-01-23 15:52-0200\n"
+"Language-Team: \n"
+"X-Generator: Poedit 1.8.11\n"
+"Last-Translator: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: pt_BR\n"
+
+#: includes/admin/views/html-notice-currency-not-supported.php:8
+msgid "maxiPago Disabled"
+msgstr "maxiPago! Desativado"
+
+#: includes/admin/views/html-notice-currency-not-supported.php:8
+msgid "Currency <code>%s</code> is not supported. Works with %s."
+msgstr "A moeda <code>%s</code> não é suportada. Funciona com %s."
+
+#: includes/admin/views/html-notice-missing-curl.php:8
+#: includes/admin/views/html-notice-missing-woocommerce.php:13
+msgid "WooCommerce maxiPago"
+msgstr "WooCommerce maxiPago!"
+
+#: includes/admin/views/html-notice-missing-curl.php:8
+msgid "needs to have installed on your server the CURL lib to works!"
+msgstr ""
+"Precisa ter instalado no seu servidor a lib CURL para o funcionamento do "
+"plugin!"
+
+#: includes/admin/views/html-notice-missing-woocommerce.php:13
+msgid "depends on the last version of WooCommerce to work!"
+msgstr "depende da última versão do WooCommerce para functionar!"
+
+#: includes/admin/views/html-notice-missing-woocommerce.php:18
+msgid "Active WooCommerce"
+msgstr "Ativar WooCommerce"
+
+#: includes/admin/views/html-notice-missing-woocommerce.php:27
+msgid "Install WooCommerce"
+msgstr "Instale o WooCommerce"
+
+#: includes/class-wc-maxipago-api.php:69
+msgid ""
+"maxiPago!: After we receive the ticket payment confirmation, your order will "
+"be processed."
+msgstr ""
+"maxiPago!: Após recebermos a confirmação de pagamento do boleto, seu pedido "
+"será processado."
+
+#: includes/class-wc-maxipago-api.php:71
+msgid ""
+"maxiPago!: After we receive the TEF payment confirmation, your order will be "
+"processed."
+msgstr ""
+"maxiPago!: Após recebermos a confirmação de pagamento, seu pedido será "
+"processado."
+
+#: includes/class-wc-maxipago-api.php:73
+msgid "maxiPago!: This order requires manual capture."
+msgstr "maxiPago!: O pedido necessita de captura manual."
+
+#: includes/class-wc-maxipago-api.php:79
+msgid "maxiPago!: This order is under fraud review, please wait for return."
+msgstr ""
+"maxiPago!: Este pedido está sob revisão de fraude, por favor, aguarde o "
+"retorno."
+
+#: includes/class-wc-maxipago-api.php:83 includes/class-wc-maxipago-cron.php:94
+msgid "maxiPago!: Payment Denied."
+msgstr "maxiPago!: Pagamento negado."
+
+#: includes/class-wc-maxipago-api.php:87 includes/class-wc-maxipago-cron.php:98
+msgid "maxiPago!: Payment Denied for duplicity or fraud."
+msgstr "maxiPago!: Pagamento negado por duplicidade ou fraude. "
+
+#: includes/class-wc-maxipago-api.php:95
+msgid "maxiPago!: An error has occurred while processing your payment."
+msgstr "maxiPago!: Ocorreu um erro ao processar o seu pagamento."
+
+#: includes/class-wc-maxipago-api.php:106 templates/tef/payment-form.php:8
+msgid "Select the Bank"
+msgstr "Selecione o Banco"
+
+#: includes/class-wc-maxipago-api.php:107
+msgid "Banco do Brasil"
+msgstr "Banco do Brasil"
+
+#: includes/class-wc-maxipago-api.php:108
+#: includes/class-wc-maxipago-api.php:115
+msgid "Bradesco"
+msgstr "Bradesco"
+
+#: includes/class-wc-maxipago-api.php:109
+msgid "Caixa Econômica Federal"
+msgstr "Caixa Econômica Federal"
+
+#: includes/class-wc-maxipago-api.php:110
+msgid "HSBC"
+msgstr "HSBC"
+
+#: includes/class-wc-maxipago-api.php:111
+#: includes/class-wc-maxipago-api.php:116
+msgid "Itaú"
+msgstr "Itaú"
+
+#: includes/class-wc-maxipago-api.php:112
+msgid "Santander"
+msgstr "Santander"
+
+#: includes/class-wc-maxipago-cc-api.php:55
+msgid "(%s%% per month - Total: %s)"
+msgstr "(%s%% a.m. - Total: %s)"
+
+#: includes/class-wc-maxipago-cc-api.php:62
+msgid "%sx of %s %s"
+msgstr "%sx de %s %s"
+
+#: includes/class-wc-maxipago-cc-api.php:75
+msgid "Please select a number of installments."
+msgstr "Por favor, selecione o número de parcelas."
+
+#: includes/class-wc-maxipago-cc-api.php:88
+msgid "Invalid number of installments."
+msgstr "Número de parcelas inválido."
+
+#: includes/class-wc-maxipago-cc-api.php:157
+msgid "Please type the cvc code for the card."
+msgstr "Digite o código de segurança do cartão."
+
+#: includes/class-wc-maxipago-cc-api.php:162
+msgid "Please type the card number."
+msgstr "Digite o número do seu cartão."
+
+#: includes/class-wc-maxipago-cc-api.php:165
+msgid "Please type the name of the card holder."
+msgstr "Digite o nome do Titular do Cartão."
+
+#: includes/class-wc-maxipago-cc-api.php:168
+msgid "Please type the card expiry date."
+msgstr "Digite o vencimento do cartão."
+
+#: includes/class-wc-maxipago-cc-api.php:171
+msgid "Please type the cvc code for the card"
+msgstr "Digite o código de segurança do cartão."
+
+#: includes/class-wc-maxipago-cc-api.php:187
+msgid "Simulador de Teste"
+msgstr "Simulador de Teste"
+
+#: includes/class-wc-maxipago-cc-api.php:188
+msgid "Redecard"
+msgstr "Redecard"
+
+#: includes/class-wc-maxipago-cc-api.php:189
+msgid "GetNet"
+msgstr "GetNet"
+
+#: includes/class-wc-maxipago-cc-api.php:190
+msgid "Cielo"
+msgstr "Cielo"
+
+#: includes/class-wc-maxipago-cc-api.php:191
+msgid "Elavon"
+msgstr "Elavon"
+
+#: includes/class-wc-maxipago-cc-api.php:206
+msgid "Disable"
+msgstr "Desativar"
+
+#: includes/class-wc-maxipago-cc-api.php:367
+#: includes/class-wc-maxipago-tef-api.php:105
+#: includes/class-wc-maxipago-ticket-api.php:104
+msgid "An error has occurred while processing your payment, please try again."
+msgstr ""
+"Ocorreu um erro durante o processamento do seu pagamento. Tente novamente."
+
+#: includes/class-wc-maxipago-cc-api.php:374
+msgid "The order does not allow capture."
+msgstr "O pedido não permite captura."
+
+#: includes/class-wc-maxipago-cc-api.php:381
+msgid "There was an error capture the payment"
+msgstr "Ocorreu um erro ao capturar o pagamento"
+
+#: includes/class-wc-maxipago-cc-api.php:402
+msgid "Payment captured successfully - User: %s"
+msgstr "Pagamento capturado com sucesso - Usuário: %s"
+
+#: includes/class-wc-maxipago-cc-api.php:406
+msgid "There was an error capture the payment - Error: %s"
+msgstr "Ocorreu um erro ao capturar o pagamento - Erro: %s"
+
+#: includes/class-wc-maxipago-cc-api.php:416
+msgid "The order does not allow refund."
+msgstr "O pedido não permite estorno."
+
+#: includes/class-wc-maxipago-cc-api.php:423
+msgid "There was an error refund the payment"
+msgstr "Ocorreu um erro ao estornar o pagamento"
+
+#: includes/class-wc-maxipago-cc-api.php:459
+msgid "Payment cancelled successfully - User: %s"
+msgstr "Pagamento cancelado com sucesso - Usuário: %s"
+
+#: includes/class-wc-maxipago-cc-api.php:460
+msgid "Payment cancelled."
+msgstr "Pagamento cancelado."
+
+#: includes/class-wc-maxipago-cc-api.php:462
+msgid "Payment refunded successfully - User: %s"
+msgstr "Pagamento estornado com sucesso - Usuário: %s"
+
+#: includes/class-wc-maxipago-cc-api.php:463
+msgid "Payment refunded."
+msgstr "Pagamento estornado."
+
+#: includes/class-wc-maxipago-cc-api.php:468
+msgid "There was an error refund the payment - Error: %s"
+msgstr "Ocorreu um erro ao estornar o pagamento - Erro: %s"
+
+#: includes/class-wc-maxipago-cc-gateway.php:49
+msgid "maxiPago! - Credit Card"
+msgstr "maxiPago! - Cartão de Crédito"
+
+#: includes/class-wc-maxipago-cc-gateway.php:50
+msgid "Accept Payments by Credit Card using the maxiPago!"
+msgstr "Aceite pagamentos através de cartão de crédito usando o maxiPago!"
+
+#: includes/class-wc-maxipago-cc-gateway.php:127
+#: includes/class-wc-maxipago-tef-gateway.php:86
+#: includes/class-wc-maxipago-ticket-gateway.php:89
+msgid "Enable/Disable"
+msgstr "Habilitar/desabilitar"
+
+#: includes/class-wc-maxipago-cc-gateway.php:129
+msgid "Enable maxiPago! Credit Card"
+msgstr "Ativar maxiPago! Cartão de crédito"
+
+#: includes/class-wc-maxipago-cc-gateway.php:133
+#: includes/class-wc-maxipago-tef-gateway.php:92
+#: includes/class-wc-maxipago-ticket-gateway.php:95
+msgid "Title"
+msgstr "Título"
+
+#: includes/class-wc-maxipago-cc-gateway.php:135
+#: includes/class-wc-maxipago-cc-gateway.php:142
+#: includes/class-wc-maxipago-tef-gateway.php:94
+#: includes/class-wc-maxipago-tef-gateway.php:101
+#: includes/class-wc-maxipago-ticket-gateway.php:97
+#: includes/class-wc-maxipago-ticket-gateway.php:104
+msgid "Displayed at checkout."
+msgstr "Exibido no checkout."
+
+#: includes/class-wc-maxipago-cc-gateway.php:137
+msgid "Credit Card"
+msgstr "Cartão de Crédito"
+
+#: includes/class-wc-maxipago-cc-gateway.php:140
+#: includes/class-wc-maxipago-tef-gateway.php:99
+#: includes/class-wc-maxipago-ticket-gateway.php:102
+msgid "Description"
+msgstr "Descrição"
+
+#: includes/class-wc-maxipago-cc-gateway.php:144
+msgid "Pay your order with a credit card."
+msgstr "Pague seu pedido com cartão de crédito."
+
+#: includes/class-wc-maxipago-cc-gateway.php:148
+#: includes/class-wc-maxipago-tef-gateway.php:107
+#: includes/class-wc-maxipago-ticket-gateway.php:110
+msgid "Integration Settings"
+msgstr "Configurações de Integração"
+
+#: includes/class-wc-maxipago-cc-gateway.php:154
+#: includes/class-wc-maxipago-tef-gateway.php:113
+#: includes/class-wc-maxipago-ticket-gateway.php:116
+msgid "Environment"
+msgstr "Ambiente"
+
+#: includes/class-wc-maxipago-cc-gateway.php:156
+#: includes/class-wc-maxipago-tef-gateway.php:115
+#: includes/class-wc-maxipago-ticket-gateway.php:118
+msgid "Select the environment type (test or production)."
+msgstr "Selecione o tipo de ambiente (teste ou produção)."
+
+#: includes/class-wc-maxipago-cc-gateway.php:161
+#: includes/class-wc-maxipago-tef-gateway.php:120
+#: includes/class-wc-maxipago-ticket-gateway.php:123
+msgid "Test"
+msgstr "Teste"
+
+#: includes/class-wc-maxipago-cc-gateway.php:162
+#: includes/class-wc-maxipago-tef-gateway.php:121
+#: includes/class-wc-maxipago-ticket-gateway.php:124
+msgid "Production"
+msgstr "Produção"
+
+#: includes/class-wc-maxipago-cc-gateway.php:166
+#: includes/class-wc-maxipago-tef-gateway.php:125
+#: includes/class-wc-maxipago-ticket-gateway.php:128
+msgid "Merchant ID"
+msgstr "Merchant ID"
+
+#: includes/class-wc-maxipago-cc-gateway.php:168
+#: includes/class-wc-maxipago-tef-gateway.php:127
+#: includes/class-wc-maxipago-ticket-gateway.php:130
+msgid "Unique ID for each merchant."
+msgstr "ID único."
+
+#: includes/class-wc-maxipago-cc-gateway.php:176
+#: includes/class-wc-maxipago-tef-gateway.php:135
+#: includes/class-wc-maxipago-ticket-gateway.php:138
+msgid "Merchant Key"
+msgstr "Merchant Key"
+
+#: includes/class-wc-maxipago-cc-gateway.php:178
+#: includes/class-wc-maxipago-tef-gateway.php:137
+#: includes/class-wc-maxipago-ticket-gateway.php:140
+msgid "Key associated with the Merchant ID."
+msgstr "Chave associada ao Merchant ID."
+
+#: includes/class-wc-maxipago-cc-gateway.php:186
+#: includes/class-wc-maxipago-tef-gateway.php:145
+#: includes/class-wc-maxipago-ticket-gateway.php:148
+msgid "Invoice Prefix"
+msgstr "Prefixo do Pedido"
+
+#: includes/class-wc-maxipago-cc-gateway.php:188
+#: includes/class-wc-maxipago-tef-gateway.php:147
+#: includes/class-wc-maxipago-ticket-gateway.php:150
+msgid ""
+"Please enter a prefix for your invoice numbers, which is used to ensure that "
+"the order number is unique if you use this account in more than one store."
+msgstr ""
+"Insira um prefixo para seus números de pedido, que é usado para garantir que "
+"o número seja único se você usar essa conta em mais de uma loja."
+
+#: includes/class-wc-maxipago-cc-gateway.php:193
+#: includes/class-wc-maxipago-tef-gateway.php:152
+#: includes/class-wc-maxipago-ticket-gateway.php:155
+msgid "Save Log"
+msgstr "Salvar Log"
+
+#: includes/class-wc-maxipago-cc-gateway.php:195
+#: includes/class-wc-maxipago-tef-gateway.php:154
+#: includes/class-wc-maxipago-ticket-gateway.php:157
+msgid "Enable logging"
+msgstr "Ativar log"
+
+#: includes/class-wc-maxipago-cc-gateway.php:197
+#: includes/class-wc-maxipago-tef-gateway.php:156
+#: includes/class-wc-maxipago-ticket-gateway.php:159
+msgid "Save log for API requests. You can check this log in %s."
+msgstr ""
+"Salva log para solicitações de API. Você pode verificar este log em %s."
+
+#: includes/class-wc-maxipago-cc-gateway.php:197
+#: includes/class-wc-maxipago-tef-gateway.php:156
+#: includes/class-wc-maxipago-ticket-gateway.php:159
+msgid "System Status &gt; Logs"
+msgstr "Status do Sistema &gt; Logs"
+
+#: includes/class-wc-maxipago-cc-gateway.php:201
+#: includes/class-wc-maxipago-tef-gateway.php:160
+#: includes/class-wc-maxipago-ticket-gateway.php:163
+msgid "Payment Options"
+msgstr "Opções de Pagamento"
+
+#: includes/class-wc-maxipago-cc-gateway.php:207
+msgid "Soft Descriptor"
+msgstr "Soft Descriptor"
+
+#: includes/class-wc-maxipago-cc-gateway.php:209
+msgid ""
+"For retailers using Cielo is possible to enter descriptive field that will "
+"appear on the customers invoice. This feature is available for the Visa, "
+"JCB, Mastercard, Aura, Diners and Elo brands for the authorization or sale "
+"transactions. Use only letters and numbers without spaces."
+msgstr ""
+"Para os lojistas que utilizam Cielo é possível inserir um campo descritivo "
+"que aparecerá na fatura do cliente. Este recurso está disponível para as "
+"marcas Visa, JCB, Mastercard, Aura, Diners e Elo para as transações de "
+"autorização ou venda. Use apenas letras e números sem espaços."
+
+#: includes/class-wc-maxipago-cc-gateway.php:218
+msgid "Maximum number of installments"
+msgstr "Número máximo de parcelas."
+
+#: includes/class-wc-maxipago-cc-gateway.php:220
+msgid "Maximum number of installments for orders in your store."
+msgstr "Número máximo de parcelas para pedidos em usa loja."
+
+#: includes/class-wc-maxipago-cc-gateway.php:240
+msgid "Interest Rate (%)"
+msgstr "Taxa de Juros (%)"
+
+#: includes/class-wc-maxipago-cc-gateway.php:242
+msgid ""
+"Percentage of interest that will be charged to the customer in the "
+"installment where there is interest rate to be charged."
+msgstr "Percentual de juros que será cobrado ao cliente na parcela."
+
+#: includes/class-wc-maxipago-cc-gateway.php:247
+msgid "Interest Rate Calculate Method"
+msgstr "Método para Cálculo de Júros"
+
+#: includes/class-wc-maxipago-cc-gateway.php:249
+msgid "Choose your interest rate calculate method."
+msgstr "Escolha o método para cálculo de juros."
+
+#: includes/class-wc-maxipago-cc-gateway.php:254
+msgid "Simple"
+msgstr "Simples"
+
+#: includes/class-wc-maxipago-cc-gateway.php:255
+msgid "Compound"
+msgstr "Composto"
+
+#: includes/class-wc-maxipago-cc-gateway.php:256
+msgid "Price"
+msgstr "Price"
+
+#: includes/class-wc-maxipago-cc-gateway.php:260
+msgid "Number of installments without Interest Rate"
+msgstr "Número de parcelas sem juros"
+
+#: includes/class-wc-maxipago-cc-gateway.php:262
+msgid "Indicate the number of public without Interest Rate."
+msgstr "Indique o número de parcelas sem juros."
+
+#: includes/class-wc-maxipago-cc-gateway.php:267
+msgid "None"
+msgstr "Nada"
+
+#: includes/class-wc-maxipago-cc-gateway.php:283
+msgid "Minimum value per installments"
+msgstr "Valor mínimo por parcela"
+
+#: includes/class-wc-maxipago-cc-gateway.php:285
+msgid "Minimum value per installments, cannot be less than 1."
+msgstr "O valor mínimo por parcela não pode ser menor que 1."
+
+#: includes/class-wc-maxipago-cc-gateway.php:290
+msgid "Processing Type"
+msgstr "Tipo de Processamento"
+
+#: includes/class-wc-maxipago-cc-gateway.php:292
+msgid "Choose your processing type."
+msgstr "Escolha o tipo de processamento."
+
+#: includes/class-wc-maxipago-cc-gateway.php:297
+msgid "Sale (Authorize and Capture)"
+msgstr "Venda Direta (Autoriza e Captura)"
+
+#: includes/class-wc-maxipago-cc-gateway.php:298
+msgid "Authorization (Authorize only)"
+msgstr "Autorização (Somente autoriza)"
+
+#: includes/class-wc-maxipago-cc-gateway.php:302
+msgid "Use Credit Card Tokenization"
+msgstr "Usar Tokenização"
+
+#: includes/class-wc-maxipago-cc-gateway.php:304
+msgid "Save the Credit Card token to use for future purchases."
+msgstr "Salva o token do Cartão de Crédito para futuras compras."
+
+#: includes/class-wc-maxipago-cc-gateway.php:308
+msgid "Fraud Check"
+msgstr "Verificar Fraude"
+
+#: includes/class-wc-maxipago-cc-gateway.php:310
+msgid "Enable fraudControl!"
+msgstr "Ativa o fraudControl!"
+
+#: includes/class-wc-maxipago-cc-gateway.php:315
+msgid "Acquirers"
+msgstr "Adquirentes"
+
+#: includes/class-wc-maxipago-cc-gateway.php:321
+msgid "Visa"
+msgstr "Visa"
+
+#: includes/class-wc-maxipago-cc-gateway.php:323
+msgid "Choose your acquirer for Visa."
+msgstr "Escolha seu adquirente para o Visa."
+
+#: includes/class-wc-maxipago-cc-gateway.php:330
+msgid "MasterCard"
+msgstr "MasterCard"
+
+#: includes/class-wc-maxipago-cc-gateway.php:332
+msgid "Choose your acquirer for MasterCard."
+msgstr "Escolha seu adquirente para o MasterCard."
+
+#: includes/class-wc-maxipago-cc-gateway.php:339
+msgid "Amex (American Express)"
+msgstr "Amex (American Express)"
+
+#: includes/class-wc-maxipago-cc-gateway.php:341
+msgid "Choose your acquirer for Amex (American Express)."
+msgstr "Escolha seu adquirente para o Amex (American Express)."
+
+#: includes/class-wc-maxipago-cc-gateway.php:348
+msgid "Diners Club"
+msgstr "Diners Club"
+
+#: includes/class-wc-maxipago-cc-gateway.php:350
+msgid "Choose your acquirer for Diners Club."
+msgstr "Escolha seu adquirente para o Diners Club."
+
+#: includes/class-wc-maxipago-cc-gateway.php:357
+msgid "Elo"
+msgstr "Elo"
+
+#: includes/class-wc-maxipago-cc-gateway.php:359
+msgid "Choose your acquirer for Elo."
+msgstr "Escolha seu adquirente para o Elo."
+
+#: includes/class-wc-maxipago-cc-gateway.php:366
+msgid "Discover"
+msgstr "Discover"
+
+#: includes/class-wc-maxipago-cc-gateway.php:368
+msgid "Choose your acquirer for Discover."
+msgstr "Escolha seu adquirente para o Discover."
+
+#: includes/class-wc-maxipago-cc-gateway.php:375
+msgid "Hipercard"
+msgstr "Hipercard"
+
+#: includes/class-wc-maxipago-cc-gateway.php:377
+msgid "Choose your acquirer for Hipercard."
+msgstr "Escolha seu adquirente para o Hipercard."
+
+#: includes/class-wc-maxipago-cc-gateway.php:461
+#: includes/class-wc-maxipago-cc-gateway.php:471
+msgid "There was a problem adding this card."
+msgstr "Houve um problema ao tentar adicionar um cartão."
+
+#: includes/class-wc-maxipago-cc-gateway.php:483
+msgid ""
+"<strong>%s</strong> is enabled and WooCommerce is not forcing the SSL "
+"certificate on your checkout page. Please ensure that you have a valid SSL "
+"certificate and that you are <a href=\"%s\">forcing the checkout pages to be "
+"secured.</a>"
+msgstr ""
+"<strong>%s</strong> está ativado e o WooCommerce não está forçando o "
+"certificado SSL em sua página de checkout. Certifique-se de que tem um "
+"certificado SSL válido e que está <a href=\"%s\">obrigando as páginas de "
+"checkout a serem protegidas.</a>"
+
+#: includes/class-wc-maxipago-cron.php:102
+msgid "maxiPago!: Payment Cancelled (Voided)."
+msgstr "maxiPago!: Pagamento Cancelado (Voided)."
+
+#: includes/class-wc-maxipago-tef-api.php:11
+msgid "Please select a bank."
+msgstr "Selecione o Banco"
+
+#: includes/class-wc-maxipago-tef-api.php:14
+#: includes/class-wc-maxipago-ticket-api.php:11
+msgid "Please type the valid document number."
+msgstr "Digite o número do CPF."
+
+#: includes/class-wc-maxipago-tef-gateway.php:25
+msgid "maxiPago! - TEF"
+msgstr "maxiPago! - Transferência Bancária"
+
+#: includes/class-wc-maxipago-tef-gateway.php:26
+msgid "Accept Payments by TEF using the maxiPago!"
+msgstr "Aceite pagamentos por Transferência Bancária usando o maxiPago!"
+
+#: includes/class-wc-maxipago-tef-gateway.php:88
+msgid "Enable maxiPago! TEF"
+msgstr "Ativar maxiPago! Transferência Bancária"
+
+#: includes/class-wc-maxipago-tef-gateway.php:96
+msgid "TEF"
+msgstr "Transferência Bancária"
+
+#: includes/class-wc-maxipago-tef-gateway.php:103
+msgid "Pay your order with a TEF."
+msgstr "Pague seu pedido com Transferência Bancária."
+
+#: includes/class-wc-maxipago-tef-gateway.php:166
+msgid "Banks"
+msgstr "Bancos"
+
+#: includes/class-wc-maxipago-tef-gateway.php:168
+msgid "Choose your banks."
+msgstr "Escolha seus Bancos"
+
+#: includes/class-wc-maxipago-ticket-gateway.php:27
+msgid "maxiPago! - Ticket"
+msgstr "maxiPago! - Boleto"
+
+#: includes/class-wc-maxipago-ticket-gateway.php:28
+msgid "Accept Payments by Ticket using the maxiPago!"
+msgstr "Aceite pagamentos por Boleto usando o maxiPago!"
+
+#: includes/class-wc-maxipago-ticket-gateway.php:91
+msgid "Enable maxiPago! Ticket"
+msgstr "Ativar maxiPago! Boleto"
+
+#: includes/class-wc-maxipago-ticket-gateway.php:99
+msgid "Ticket"
+msgstr "Boleto"
+
+#: includes/class-wc-maxipago-ticket-gateway.php:106
+msgid "Pay your order with a ticket."
+msgstr "Pague seu pedido com Boleto."
+
+#: includes/class-wc-maxipago-ticket-gateway.php:169
+msgid "Bank of ticket"
+msgstr "Banco do Boleto"
+
+#: includes/class-wc-maxipago-ticket-gateway.php:171
+msgid "Choose your bank of ticket."
+msgstr "Escolha o banco para o Boleto"
+
+#: includes/class-wc-maxipago-ticket-gateway.php:178
+msgid "Days to expire Ticket"
+msgstr "Dias para vencimento do Boleto"
+
+#: includes/class-wc-maxipago-ticket-gateway.php:180
+msgid "Choose the number of days to expire ticket."
+msgstr "Escolha o número de dias para o vencimento do boleto."
+
+#: includes/class-wc-maxipago-ticket-gateway.php:185
+msgid "Instructions"
+msgstr "Instruções"
+
+#: includes/class-wc-maxipago-ticket-gateway.php:187
+msgid "Enter the instructions that will appear on the ticket."
+msgstr "Digite as instruções que aparecerão no boleto."
+
+#: templates/cc/emails/html-instructions.php:6
+#: templates/cc/emails/plain-instructions.php:5
+#: templates/tef/emails/html-instructions.php:6
+#: templates/tef/emails/plain-instructions.php:5
+#: templates/ticket/emails/html-instructions.php:6
+#: templates/ticket/emails/plain-instructions.php:5
+msgid "Payment"
+msgstr "Pagamento"
+
+#: templates/cc/emails/html-instructions.php:7
+#: templates/cc/emails/plain-instructions.php:7
+#: templates/cc/payment-instructions.php:7
+msgid "Payment successfully: %s in %s."
+msgstr "Pagamento efetuado com sucesso: %s em %s."
+
+#: templates/cc/payment-form.php:11
+msgid "Card Number"
+msgstr "Número do Cartão"
+
+#: templates/cc/payment-form.php:15
+msgid "Name Printed on the Card"
+msgstr "Nome impresso no cartão"
+
+#: templates/cc/payment-form.php:19
+msgid "Expiry (MM/YYYY)"
+msgstr "Vencimento (MM/AAAA)"
+
+#: templates/cc/payment-form.php:20
+msgid "MM / YYYY"
+msgstr "MM / AAAA"
+
+#: templates/cc/payment-form.php:23 templates/cc/payment-form.php:48
+msgid "Security Code"
+msgstr "Código de Segurança"
+
+#: templates/cc/payment-form.php:24 templates/cc/payment-form.php:49
+msgid "CVV"
+msgstr "CVV"
+
+#: templates/cc/payment-form.php:27
+msgid "Installments"
+msgstr "Parcelas"
+
+#: templates/tef/emails/html-instructions.php:7
+#: templates/tef/emails/plain-instructions.php:7
+msgid "Please use the link below to pay your Order:"
+msgstr "Por favor, use o link abaixo para pagar o Pedido:"
+
+#: templates/tef/emails/html-instructions.php:7
+#: templates/tef/payment-instructions.php:7
+#: templates/ticket/emails/html-instructions.php:7
+#: templates/ticket/payment-instructions.php:7
+msgid "Pay the Order"
+msgstr "Pagar o Pedido"
+
+#: templates/tef/emails/html-instructions.php:7
+#: templates/tef/emails/plain-instructions.php:11
+#: templates/tef/payment-instructions.php:7
+#: templates/ticket/emails/html-instructions.php:7
+#: templates/ticket/emails/plain-instructions.php:11
+#: templates/ticket/payment-instructions.php:7
+msgid ""
+"After we receive the payment confirmation, your order will be processed."
+msgstr ""
+"Depois que recebermos a confirmação do pagamento, seu pedido será processado."
+
+#: templates/tef/payment-form.php:17 templates/ticket/payment-form.php:9
+msgid "Document Number"
+msgstr "CPF"
+
+#: templates/tef/payment-form.php:23
+msgid ""
+"After clicking \"Place order\" you will have access to link to pay order."
+msgstr ""
+"Depois de clicar em \"Finalizar compra\" você terá acesso ao link para "
+"efetuar o pagamento."
+
+#: templates/tef/payment-form.php:23 templates/ticket/payment-form.php:15
+msgid "Note: The order will be confirmed only after the payment approval."
+msgstr "Nota: O pedido será confirmado somente após a aprovação do pagamento."
+
+#: templates/tef/payment-instructions.php:7
+msgid "Please click in the following button to pay your Order."
+msgstr "Clique no botão seguinte para pagar seu pedido."
+
+#: templates/ticket/emails/html-instructions.php:7
+#: templates/ticket/emails/plain-instructions.php:7
+msgid ""
+"Please use the link below to view your Ticket, you can print and pay in your "
+"internet banking or in a lottery retailer:"
+msgstr ""
+"Por favor, use o link abaixo para ver o Boleto, você pode imprimir e pagar "
+"em seu banco na Internet ou em um varejista de loteria:"
+
+#: templates/ticket/payment-form.php:15
+msgid ""
+"After clicking \"Place order\" you will have access to ticket which you can "
+"print and pay in your internet banking or in a lottery retailer."
+msgstr ""
+"Depois de clicar em \"Finalizar compra\" você terá acesso ao Boleto que você "
+"pode imprimir e pagar em seu banco na Internet ou em uma lotérica."
+
+#: templates/ticket/payment-instructions.php:7
+msgid "Please click in the following button to view your Ticket."
+msgstr "Clique no botão seguinte para ver o Boleto."
+
+#: templates/ticket/payment-instructions.php:7
+msgid ""
+"You can print and pay in your internet banking or in a lottery retailer."
+msgstr ""
+"Você pode imprimir e pagar em seu banco na internet ou em uma lotérica."
+
+#: woocommerce-maxipago.php:93
+msgid "Credit Card Settings"
+msgstr "Configurações do Cartão de Crédito"
+
+#: woocommerce-maxipago.php:94
+msgid "Ticket Settings"
+msgstr "Configurações do Boleto"
+
+#: woocommerce-maxipago.php:95
+msgid "TEF Settings"
+msgstr "Configurações da Transferência Bancária"
+
+#: woocommerce-maxipago.php:100
+msgid "Capture Payment [maxiPago!]"
+msgstr "Capturar Pagamento [maxiPago!]"
+
+#. Plugin Name of the plugin/theme
+msgid "WooCommerce maxiPago!"
+msgstr "WooCommerce maxiPago!"
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/maxipago/woocommerce-maxipago"
+msgstr "https://github.com/maxipago/woocommerce-maxipago"
+
+#. Description of the plugin/theme
+msgid "<strong>Oficial</strong> Plugin for maxiPago! Smart Payments."
+msgstr "<strong>Plugin oficial</strong> para o maxiPago! Smart Payments."
+
+#. Author of the plugin/theme
+msgid "maxiPago! Smart Payments"
+msgstr "maxiPago Smart Payments"
+
+#. Author URI of the plugin/theme
+msgid "http://www.maxipago.com/"
+msgstr "http://www.maxipago.com/"
