@@ -25,4 +25,4 @@ Once the plugin is installed you need to go to "WooCommerce" > "Settings" > "Che
 
 ### Bug ###
 
-- Report in our [GitHub page](https://github.com/maxipago/woocommerce-maixpago/issues).
+- Report in our [GitHub page](https://github.com/maxipago/modulo-woocommerce/issues).
