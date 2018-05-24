@@ -3,12 +3,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_maxiPago_TEF_Gateway extends WC_Payment_Gateway_CC {
+class WC_maxiPago_TEF_Gateway extends WC_Payment_Gateway_CC
+{
 
     const ID = 'maxipago-tef';
 
     /** @var WC_maxiPago_TEF_API */
-    private $api;
+    public $api;
 
     public $supports = array('products');
 
@@ -19,7 +20,8 @@ class WC_maxiPago_TEF_Gateway extends WC_Payment_Gateway_CC {
     public $save_log;
     public $banks;
 
-    public function __construct() {
+    public function __construct()
+    {
 
         $this->id = self::ID;
         $this->method_title = __('maxiPago! - TEF', 'woocommerce-maxipago');
@@ -53,13 +55,14 @@ class WC_maxiPago_TEF_Gateway extends WC_Payment_Gateway_CC {
         }
 
         // Checkout Scripts
-        if(is_checkout() || is_checkout_pay_page()) {
-            wp_enqueue_script( 'jquery-maskedinput', plugins_url( 'assets/js/jquery-maskedinput/jquery.maskedinput.js', plugin_dir_path( __FILE__ ) ), array('jquery'), WC_maxiPago::VERSION, true );
-            wp_enqueue_style( 'tef-checkout', plugins_url( 'assets/css/tef-checkout.css', plugin_dir_path( __FILE__ ) ), array(), WC_maxiPago::VERSION );
+        if (is_checkout() || is_checkout_pay_page()) {
+            wp_enqueue_script('jquery-maskedinput', plugins_url('assets/js/jquery-maskedinput/jquery.maskedinput.js', plugin_dir_path(__FILE__)), array('jquery'), WC_maxiPago::VERSION, true);
+            wp_enqueue_style('tef-checkout', plugins_url('assets/css/tef-checkout.css', plugin_dir_path(__FILE__)), array(), WC_maxiPago::VERSION);
         }
     }
 
-    public function get_supported_currencies() {
+    public function get_supported_currencies()
+    {
         return apply_filters(
             'woocommerce_maxipago_supported_currencies', array(
                 'BRL',
@@ -67,19 +70,23 @@ class WC_maxiPago_TEF_Gateway extends WC_Payment_Gateway_CC {
         );
     }
 
-    public function using_supported_currency() {
+    public function using_supported_currency()
+    {
         return in_array(get_woocommerce_currency(), $this->get_supported_currencies());
     }
 
-    public function is_available() {
+    public function is_available()
+    {
         return parent::is_available() && !empty($this->merchant_key) && !empty($this->merchant_id) && $this->using_supported_currency();
     }
 
-    public function admin_options() {
+    public function admin_options()
+    {
         include 'admin/views/html-admin-page.php';
     }
 
-    public function init_form_fields() {
+    public function init_form_fields()
+    {
 
         $this->form_fields = array(
             'enabled' => array(
@@ -174,26 +181,40 @@ class WC_maxiPago_TEF_Gateway extends WC_Payment_Gateway_CC {
         );
     }
 
-    public function payment_fields() {
+    public function payment_fields()
+    {
         if ($description = $this->get_description()) {
             echo wpautop(wptexturize($description));
         }
+
+        $all_banks =  $this->api->get_banks('tef');
+        $tef_banks = $this->banks;
+        $this->api->get_banks('tef');
+        $banks = array();
+        foreach ($tef_banks as $bank) {
+            if (in_array($bank, array_keys($all_banks))) {
+                $banks[$bank] = $all_banks[$bank];
+            }
+        }
+
         wc_get_template(
             'tef/payment-form.php',
             array(
-                'tef_banks' => $this->api->get_banks('tef'),
+                'tef_banks' => $banks,
             ),
             'woocommerce/maxipago/',
             WC_maxiPago::get_templates_path()
         );
     }
 
-    public function process_payment($order_id) {
+    public function process_payment($order_id)
+    {
         $order = wc_get_order($order_id);
         return $this->api->sale_order($order, $_POST);
     }
 
-    public function set_thankyou_page($order_id) {
+    public function set_thankyou_page($order_id)
+    {
         $order = new WC_Order($order_id);
         $order_status = $order->get_status();
         $result_data = get_post_meta($order_id, '_maxipago_result_data', true);
@@ -209,11 +230,12 @@ class WC_maxiPago_TEF_Gateway extends WC_Payment_Gateway_CC {
         }
     }
 
-    public function set_email_instructions(WC_Order $order, $sent_to_admin, $plain_text = false) {
-        if ($sent_to_admin || !in_array($order->get_status(), array('on-hold')) || $this->id !== $order->payment_method) {
+    public function set_email_instructions(WC_Order $order, $sent_to_admin, $plain_text = false)
+    {
+        if ($sent_to_admin || !in_array($order->get_status(), array('on-hold')) || $this->id !== $order->get_payment_method()) {
             return;
         }
-        $result_data = get_post_meta($order->id, '_maxipago_result_data', true);
+        $result_data = get_post_meta($order->get_id(), '_maxipago_result_data', true);
         if (isset($result_data['boletoUrl'])) {
             if ($plain_text) {
                 wc_get_template(

@@ -3,9 +3,11 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_maxiPago_CC_API extends WC_maxiPago_API {
+class WC_maxiPago_CC_API extends WC_maxiPago_API
+{
 
-    private function get_cc_expiration($value) {
+    private function get_cc_expiration($value)
+    {
         $value = explode('/', $value);
         $month = isset($value[0]) ? trim($value[0]) : '';
         $year = isset($value[1]) ? trim($value[1]) : '';
@@ -15,7 +17,8 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         );
     }
 
-    private function get_cc_brand($number) {
+    private function get_cc_brand($number)
+    {
         $allowed_brands = array(
             'visa' => '/^4\d{12}(\d{3})?$/',
             'mastercard' => '/^(5[1-5]\d{4}|677189)\d{10}$/',
@@ -23,7 +26,10 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
             'amex' => '/^3[47]\d{13}$/',
             'diners' => '/^3(0[0-5]|[68]\d)\d{11}$/',
             'elo' => '/^((((636368)|(438935)|(504175)|(451416)|(636297))\d{0,10})|((5067)|(4576)|(4011))\d{0,12})$/',
-            'discover' => '/^6(?:011&#124;5[0-9]{2})[0-9]{12}$/'
+            'discover' => '/^6(?:011&#124;5[0-9]{2})[0-9]{12}$/',
+            'jcb' => '/^(?:2131|1800|35\d{3})\d{11}$/',
+            'aura' => '/^(5078\d{2})(\d{2})(\d{11})$/',
+            'credz' => '/\d{12,18}$/'
         );
         foreach ($allowed_brands as $key => $value) {
             if (preg_match($value, $number)) {
@@ -33,7 +39,8 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return null;
     }
 
-    public function get_installments_html($order_total = 0) {
+    public function get_installments_html($order_total = 0)
+    {
         $html = '';
         $installments = $this->gateway->installments;
         if ('1' == $installments) {
@@ -66,7 +73,8 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return $html;
     }
 
-    private function validate_installments($posted, $order_total) {
+    private function validate_installments($posted, $order_total)
+    {
         try {
             if (!isset($posted['maxipago_installments']) && 1 == $this->gateway->installments) {
                 return true;
@@ -94,7 +102,8 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return true;
     }
 
-    private function get_installment_price($price, $installments, $interest_rate, $type = 'price') {
+    private function get_installment_price($price, $installments, $interest_rate, $type = 'price')
+    {
         $price = (float)$price;
         $value = 0;
         if ($interest_rate) {
@@ -117,12 +126,14 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return $value;
     }
 
-    private function get_total_by_installments($price, $installments, $interest_rate) {
+    private function get_total_by_installments($price, $installments, $interest_rate)
+    {
         return $this->get_installment_price($price, $installments, $interest_rate,
-            $this->gateway->interest_rate_caculate_method) * $installments;
+                $this->gateway->interest_rate_caculate_method) * $installments;
     }
 
-    private function get_installments($price = null) {
+    private function get_installments($price = null)
+    {
         $price = (float)$price;
         $max_installments = $this->gateway->installments;
         $installments_without_interest = $this->gateway->max_without_interest;
@@ -150,28 +161,35 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return $installments;
     }
 
-    private function validate_fields($formData) {
+    private function validate_fields($formData)
+    {
         try {
-            if ($this->gateway->use_token) {
-                if ($formData['wc-maxipago-cc-payment-token'] != 'new' && (!isset($formData['maxipago_card_cvc_token']) || '' === $formData['maxipago_card_cvc_token'])) {
+            if (isset($formData['wc-maxipago-cc-payment-token']) && $formData['wc-maxipago-cc-payment-token'] != 'new' ) {
+                if ((!isset($formData['maxipago_card_cvc_token']) || '' === $formData['maxipago_card_cvc_token'])) {
                     throw new Exception(__('Please type the cvc code for the card.', 'woocommerce-maxipago'));
                 }
+            } else {
+
+
+                if (!isset($formData['maxipago_card_number']) || '' === $formData['maxipago_card_number']) {
+                    throw new Exception(__('Please type the card number.', 'woocommerce-maxipago'));
+                }
+                if (!isset($formData['maxipago_holder_name']) || '' === $formData['maxipago_holder_name']) {
+                    throw new Exception(__('Please type the name of the card holder.', 'woocommerce-maxipago'));
+                }
+                if (!isset($formData['maxipago_card_expiry']) || '' === $formData['maxipago_card_expiry']) {
+                    throw new Exception(__('Please type the card expiry date.', 'woocommerce-maxipago'));
+                }
+                if (!isset($formData['maxipago_card_cvc']) || '' === $formData['maxipago_card_cvc']) {
+                    throw new Exception(__('Please type the cvc code for the card', 'woocommerce-maxipago'));
+                }
             }
+
             if (!isset($formData['maxipago_cc_document']) || '' === $formData['maxipago_cc_document'] || !$this->check_document($formData['maxipago_cc_document'])) {
                 throw new Exception(__('Please type the valid document number.', 'woocommerce-maxipago'));
             }
-            if (!isset($formData['maxipago_card_number']) || '' === $formData['maxipago_card_number']) {
-                throw new Exception(__('Please type the card number.', 'woocommerce-maxipago'));
-            }
-            if (!isset($formData['maxipago_holder_name']) || '' === $formData['maxipago_holder_name']) {
-                throw new Exception(__('Please type the name of the card holder.', 'woocommerce-maxipago'));
-            }
-            if (!isset($formData['maxipago_card_expiry']) || '' === $formData['maxipago_card_expiry']) {
-                throw new Exception(__('Please type the card expiry date.', 'woocommerce-maxipago'));
-            }
-            if (!isset($formData['maxipago_card_cvc']) || '' === $formData['maxipago_card_cvc']) {
-                throw new Exception(__('Please type the cvc code for the card', 'woocommerce-maxipago'));
-            }
+
+
         } catch (Exception $e) {
             wc_add_notice('<strong>' . esc_html($this->gateway->title) . '</strong>: ' . esc_html($e->getMessage()), 'error');
             return false;
@@ -179,26 +197,35 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return true;
     }
 
-    private function get_processor_id_by_cc_brand($cc_brand) {
+    private function get_processor_id_by_cc_brand($cc_brand)
+    {
         $name_config = 'acquirers_' . $cc_brand;
         return $this->gateway->$name_config;
     }
 
-    public function get_processor_by_acquirer($type = 'all') {
+    public function get_processor_by_acquirer($type = 'all')
+    {
         $processors = array(
             '1' => __('Simulador de Teste', 'woocommerce-maxipago'),
             '2' => __('Redecard', 'woocommerce-maxipago'),
             '3' => __('GetNet', 'woocommerce-maxipago'),
             '4' => __('Cielo', 'woocommerce-maxipago'),
+            '5' => __('e.Rede', 'woocommerce-maxipago'),
             '6' => __('Elavon', 'woocommerce-maxipago'),
+            '9' => __('Stone', 'woocommerce-maxipago'),
+            '10' => __('BIN', 'woocommerce-maxipago'),
         );
         $types = array(
-            'all' => array('1', '2', '3', '4', '6'),
-            'amex' => array('1', '4'),
-            'diners' => array('1', '2', '4', '6'),
-            'elo' => array('1', '3', '4'),
-            'discover' => array('1', '2', '4', '6'),
-            'hipercard' => array('1', '2'),
+            'all' => array('1', '2', '3', '4', '5', '6', '9', '10'),
+            'amex' => array('1', '4', '5'),
+            'diners' => array('1', '2', '4', '5', '6'),
+            'elo' => array('1', '3', '4', '5'),
+            'discover' => array('1', '2', '4', '5', '6'),
+            'hipercard' => array('1', '2', '5'),
+            'hiper' => array('1', '2', '5'),
+            'jcb' => array('1', '2', '4', '5'),
+            'aura' => array('1', '4'),
+            'credz' => array('1', '2', '5'),
         );
         foreach ($processors as $typeId => $typeName) {
             if (!in_array($typeId, $types[$type])) {
@@ -209,23 +236,518 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return $processors;
     }
 
-    private function is_sale_with_token($formData) {
+    public function get_fraud_processor()
+    {
+        $processors = array(
+            '99' => __('Kount', 'woocommerce-maxipago'),
+            '98' => __('Clear Sale', 'woocommerce-maxipago')
+        );
+        return $processors;
+    }
+
+    private function is_sale_with_token($formData)
+    {
         return isset($formData['wc-maxipago-cc-payment-token']) && $formData['wc-maxipago-cc-payment-token'] != 'new';
     }
 
-    private function is_save_token_checked($formData) {
+    private function is_save_token_checked($formData)
+    {
         return isset($formData['wc-maxipago-cc-new-payment-method']) && $formData['wc-maxipago-cc-new-payment-method'] == 'true';
     }
 
-    public function sale_order(WC_Order $order, $post) {
+    private function instantiate_logger()
+    {
+        if ('yes' == $this->gateway->save_log && class_exists('WC_Logger')) {
+            $this->log = new WC_Logger();
+        }
+    }
+
+    private function get_maxipago_client()
+    {
+        $client = new maxiPago();
+        $client->setCredentials($this->gateway->merchant_id, $this->gateway->merchant_key);
+        $client->setEnvironment($this->gateway->environment);
+
+        return $client;
+    }
+
+    private function get_subscription_period(WC_Order $order)
+    {
+        $period = WC_Subscriptions_Order::get_subscription_period($order);
+
+        switch(strtolower($period))
+        {
+            case 'day':
+                return 'daily';
+            case 'week':
+                return 'weekly';
+            case 'month':
+            default:
+                return 'monthly';
+        }
+    }
+
+    private function get_subscription_frequency(WC_Order $order)
+    {
+        /**
+         * WooCommerce subscription plugins allows four periods, beign 'day', 'week', 'month' and 'year'.
+         * Unfortunately, MaxiPago only allows 'daily', 'weekly' and 'monthly'.
+         * (See $this->get_subscription_period(WC_Order object)).
+         * For those 'year' cases, get_subscription_period will return 'monthly' (default),
+         * and so, $frequency must be times 12, for earch year is twelve months.
+         */
+
+        $period = WC_Subscriptions_Order::get_subscription_period($order);
+        $multiplier = $period == 'year' ? 12 : 1;
+        return $multiplier * WC_Subscriptions_Order::get_subscription_interval( $order );
+    }
+
+    private function get_subscription_length(WC_Order $order, $product_id)
+    {
+        $subscription_length = get_post_meta($product_id, '_subscription_length', 'single');
+        $period = WC_Subscriptions_Order::get_subscription_period($order);
+
+        switch(strtolower($period)) {
+            case 'day':
+                return $subscription_length == 0 ? 1680 : $subscription_length;
+            case 'week':
+                return $subscription_length == 0 ? 240 : $subscription_length;
+            case 'month':
+            default:
+                return $subscription_length == 0 ? 60 : ($subscription_length * ($period == 'year' ? 12 : 1));
+        }
+    }
+
+    private function get_subscription_last_date($order, $start_date, $number_of_periods)
+    {
+        $period = WC_Subscriptions_Order::get_subscription_period($order);
+        $start_time = wcs_date_to_time($start_date);
+
+        if($period == 'year')
+            $number_of_periods /= 12;
+
+        $last_date = wcs_add_time($number_of_periods, $period, $start_time);
+
+        return gmdate('Y-m-d', $last_date);
+    }
+
+    private function getTransactionData(WC_Order $order, $post)
+    {
+        $order_id = $this->gateway->invoice_prefix . $order->get_id();
+        $ip_address = $this->clean_ip_address($order->get_customer_ip_address());
+
+        $transaction_data = array(
+            'referenceNum' => $order_id,
+            'ipAddress' => $ip_address,
+            'customerIdExt' => $post['maxipago_cc_document']
+        );
+
+        if($this->is_sale_with_token($post))
+        {
+            $token_id = $post['wc-maxipago-cc-payment-token'];
+            $cc_brand = $this->get_card_type($token_id);
+            $processor_id = $this->get_processor_id_by_cc_brand($cc_brand);
+
+            $transaction_data['processorID'] = $processor_id;
+        } else
+        {
+            $cc_number = sanitize_text_field($this->clean_number($post['maxipago_card_number']));
+            $cc_brand = $this->get_cc_brand($cc_number);
+            $processor_id = $this->get_processor_id_by_cc_brand($cc_brand);
+
+            $transaction_data['processorID'] = $processor_id;
+        }
+
+        return $transaction_data;
+    }
+
+    private function getPaytypeData(WC_Order $order, $post)
+    {
+        if($this->is_sale_with_token($post))
+        {
+            $cvv_number = sanitize_text_field($post['maxipago_card_cvc_token']);
+            $cc_expiration = $this->get_cc_expiration_by_token($post['wc-maxipago-cc-payment-token']);
+            $customer_id = get_user_meta(get_current_user_id(), '_maxipago_customer_id_' . $this->gateway->merchant_id, true);
+            $token_number = $this->get_token($post['wc-maxipago-cc-payment-token']);
+
+
+            return array (
+                'cvvNumber' => $cvv_number,
+                'expMonth' => $cc_expiration['month'],
+                'expirationMonth' => $cc_expiration['month'],
+                'expYear' => $cc_expiration['year'],
+                'expirationYear' => $cc_expiration['year'],
+                'customerId' => $customer_id,
+                'token' => $token_number
+            );
+        } else
+        {
+            $cvv_number = sanitize_text_field($post['maxipago_card_cvc']);
+            $cc_expiration = $this->get_cc_expiration(sanitize_text_field($post['maxipago_card_expiry']));
+            $cc_number = sanitize_text_field($this->clean_number($post['maxipago_card_number']));
+
+            return array (
+                'cvvNumber' => $cvv_number,
+                'expMonth' => $cc_expiration['month'],
+                'expYear' => $cc_expiration['year'],
+                'number' => $cc_number,
+                'expirationMonth' => $cc_expiration['month'],
+                'expirationYear' => $cc_expiration['year'],
+                'creditCardNumber' => $cc_number
+            );
+        }
+
+        return $paytype_data;
+    }
+
+    private function getPaymentData(WC_Order $order, $post)
+    {
+        $currency_code = get_woocommerce_currency();
+        $charge_total = wc_format_decimal((float)$order->get_total(), wc_get_price_decimals());
+
+        return array(
+            'currencyCode' => $currency_code,
+            'chargeTotal' => $charge_total
+        );
+    }
+
+    private function getRecurrencyData(WC_Order $order, $post)
+    {
+        $order_items = $order->get_items();
+        $item = $order_items[key($order_items)];
+        $product_id = $item['product_id'];
+
+        $trial_expiration_date = WC_Subscriptions_Product::get_trial_expiration_date($product_id);
+
+        if($trial_expiration_date == '0')
+        {
+            $tomorrow_gmt_time = wcs_date_to_time(gmdate('Y-m-d H:i:s'));
+            $trial_expiration_date = gmdate('Y-m-d H:i:s', wcs_add_time('1', 'day', $tomorrow_gmt_time));
+        }
+
+        $start_date = explode(' ', $trial_expiration_date)[0];
+        $frequency = $this->get_subscription_frequency($order);
+        $period = $this->get_subscription_period($order);
+
+        $subscription_length = $this->get_subscription_length($order, $product_id);
+
+        $installments = $subscription_length / $frequency;
+
+        $last_date = $this->get_subscription_last_date($order, $trial_expiration_date, $subscription_length);
+        $failure_threshold = '15'; // number of failed atempts before contact merchant
+
+        //$totalAmount = wc_format_decimal((float)$order->get_total(), wc_get_price_decimals());
+        //$lastAmount = wc_format_decimal((float)WC_Subscriptions_Order::get_recurring_total( $order ), wc_get_price_decimals());
+
+        return array(
+            'startDate' => $start_date,
+            'lastDate' => $last_date,
+            'frequency' => $frequency,
+            'period' => $period,
+            'installments' => $installments,
+            'failureThreshold' => $failure_threshold
+        );
+    }
+
+    private function getFraudCheckData(WC_Order $order)
+    {
+        $fraud_data = array(
+            'fraudCheck' => $this->gateway->fraud_check == 'yes' ? 'Y' : 'N'
+        );
+
+        if($fraud_data['fraudCheck'] == 'N' || $this->gateway->processing_type == 'sale')
+            return $fraud_data;
+
+        return array_merge($fraud_data, $this->getFraudProcessorData($order));
+    }
+
+    private function getFraudProcessorData(WC_Order $order)
+    {
+        if($this->gateway->fraud_processor) {
+            $processor_data = array(
+                'fraudProcessorID' => $this->gateway->fraud_processor,
+                'voidOnHighRisk' => $this->gateway->auto_void == 'yes' ? 'Y' : 'N',
+                'captureOnLowRisk' => $this->gateway->auto_capture == 'yes' ? 'Y' : 'N',
+                'websiteId' => 'DEFAULT'
+            );
+
+            if($processor_data['fraudProcessorID'] == '98') {
+                $sessionId = session_id();
+                $processor_data['fraudToken'] = $sessionId;
+            } else if ($processor_data['fraudProcessorID'] == '99') {
+                $sessionId = session_id();
+                $merchantId = $this->gateway->merchant_id;
+                $merchantSecret = $this->gateway->merchant_secret;
+                $hash = hash_hmac('md5', $merchantId . '*' . $sessionId, $merchantSecret);
+                $processor_data['fraudToken'] = $hash;
+            }
+
+            return $processor_data;
+        }
+    }
+
+    public function get_order_from_id_or_subscription_id($order_id)
+    {
+        $order = wc_get_order($order_id);
+
+        if($order instanceof WC_Subscription)
+            $order = $order->get_parent();
+
+        return $order;
+    }
+
+    public function order_is_new_payment(WC_Order $order)
+    {
+        return $this->get_maxipago_order_id($order) == null;
+    }
+
+    public function get_maxipago_order_id(WC_Order $order)
+    {
+        return get_post_meta($order->get_id(), 'orderID', 'single');
+    }
+
+    public function modify_recurring_order($order_id, $post)
+    {
+        $order = $this->get_order_from_id_or_subscription_id($order_id);
+
         $result = array(
             'result' => 'fail',
             'redirect' => ''
         );
 
-        if ('yes' == $this->gateway->save_log && class_exists('WC_Logger')) {
-            $this->log = new WC_Logger();
+        $this->instantiate_logger();
+
+        if($this->validate_fields($post) && $this->validate_installments($post, (float)$order->get_total()))
+        {
+            $client = $this->get_maxipago_client();
+
+            $request_data = array(
+                'action' => 'enable',
+                'orderID' => $this->get_maxipago_order_id($order)
+            );
+
+            $transaction_data = $this->getTransactionData($order, $post);
+            $request_data = array_merge($request_data, $transaction_data);
+
+            $paytype_data = $this->getPayTypeData($order, $post);
+            $request_data = array_merge($request_data, $paytype_data);
+
+            $payment_data = $this->getPaymentData($order, $post);
+            $request_data = array_merge($request_data, $payment_data);
+
+            $recurrency_data = $this->getRecurrencyData($order, $post);
+            $request_data = array_merge($request_data, $recurrency_data);
+
+            $address_data = $this->getAddressData($order, $post['maxipago_cc_document']);
+            $request_data = array_merge($request_data, $address_data);
+
+            $client->updateRecurring($request_data);
+
+            if ($this->log) {
+                $this->log->add('maxipago_api', '------------- creditCardRecurring::modify  -------------');
+
+                $xmlRequest = preg_replace('/<number>(.*)<\/number>/m', '<number>*****</number>', $client->xmlRequest);
+                $xmlRequest = preg_replace('/<cvvNumber>(.*)<\/cvvNumber>/m', '<cvvNumber>***</cvvNumber>', $xmlRequest);
+                $xmlRequest = preg_replace('/<token>(.*)<\/token>/m', '<token>***</token>', $xmlRequest);
+                $this->log->add('maxipago_api', $xmlRequest);
+                $this->log->add('maxipago_api', $client->xmlResponse);
+            }
+
+            update_post_meta($order->get_id(), '_maxipago_request_data', $request_data);
+
+            $result = $client->getResult();
+
+            if (!empty($result)) {
+                update_post_meta($order->get_id(), '_maxipago_result_data', $result);
+                if ($client->isErrorResponse()) {
+                    update_post_meta($order->get_id(), 'maxipago_transaction_id', $client->getTransactionID());
+                    update_post_meta($order->get_id(), 'maxipago_error', $client->getMessage());
+                    wc_add_notice('<strong>' . esc_html($this->gateway->title) . '</strong>: ' . wc_clean($client->getMessage()), 'error');
+                } else {
+                    if ($client->getTransactionID()) {
+                        update_post_meta($order->get_id(), 'maxipago_transaction_id', $client->getTransactionID());
+                        update_post_meta($order->get_id(), 'maxipago_response_message', $client->getMessage());
+                        update_post_meta($order->get_id(), 'maxipago_processor_transaction_id', $client->getProcessorTransactionID());
+                        update_post_meta($order->get_id(), 'maxipago_processor_code', $client->getProcessorCode());
+
+                        $this->updatePostMeta($order->get_id(), $result);
+                    }
+                    $updated = $this->set_order_status(
+                        $client->getReferenceNum(),
+                        $client->getResponseCode(),
+                        $this->gateway->invoice_prefix,
+                        $this->gateway->processing_type
+                    );
+                    if ($updated) {
+                        WC()->cart->empty_cart();
+                        $result = array(
+                            'result' => 'success',
+                            'redirect' => $order->get_checkout_order_received_url()
+                        );
+                    }
+                }
+            } else {
+                wc_add_notice('<strong>' . esc_html($this->gateway->title) . '</strong>: ' .
+                    esc_html(__('An error has occurred while processing your payment, please try again.', 'woocommerce-maxipago')), 'error');
+            }
         }
+
+        return $result;
+    }
+
+    public function recurring_order($order_id, $post)
+    {
+        $order = $this->get_order_from_id_or_subscription_id($order_id);
+
+        $result = array(
+            'result' => 'fail',
+            'redirect' => ''
+        );
+
+        $this->instantiate_logger();
+
+        if($this->validate_fields($post) && $this->validate_installments($post, (float)$order->get_total()))
+        {
+            $client = $this->get_maxipago_client();
+
+            $request_data = array();
+
+            $transaction_data = $this->getTransactionData($order, $post);
+            $request_data = array_merge($request_data, $transaction_data);
+
+            $paytype_data = $this->getPayTypeData($order, $post);
+            $request_data = array_merge($request_data, $paytype_data);
+
+            $payment_data = $this->getPaymentData($order, $post);
+            $request_data = array_merge($request_data, $payment_data);
+
+            $recurrency_data = $this->getRecurrencyData($order, $post);
+            $request_data = array_merge($request_data, $recurrency_data);
+
+            $address_data = $this->getAddressData($order, $post['maxipago_cc_document']);
+            $request_data = array_merge($request_data, $address_data);
+
+            $client->createRecurring($request_data);
+
+            if ($this->log) {
+                $this->log->add('maxipago_api', '------------- creditCardRecurring::new  -------------');
+
+                $xmlRequest = preg_replace('/<number>(.*)<\/number>/m', '<number>*****</number>', $client->xmlRequest);
+                $xmlRequest = preg_replace('/<cvvNumber>(.*)<\/cvvNumber>/m', '<cvvNumber>***</cvvNumber>', $xmlRequest);
+                $xmlRequest = preg_replace('/<token>(.*)<\/token>/m', '<token>***</token>', $xmlRequest);
+                $this->log->add('maxipago_api', $xmlRequest);
+                $this->log->add('maxipago_api', $client->xmlResponse);
+            }
+
+            update_post_meta($order->get_id(), '_maxipago_request_data', $request_data);
+
+            $result = $client->getResult();
+
+            if (!empty($result)) {
+                update_post_meta($order->get_id(), '_maxipago_result_data', $result);
+                if ($client->isErrorResponse()) {
+                    update_post_meta($order->get_id(), 'maxipago_transaction_id', $client->getTransactionID());
+                    update_post_meta($order->get_id(), 'maxipago_error', $client->getMessage());
+                    wc_add_notice('<strong>' . esc_html($this->gateway->title) . '</strong>: ' . wc_clean($client->getMessage()), 'error');
+                } else {
+                    if ($client->getTransactionID()) {
+                        update_post_meta($order->get_id(), 'maxipago_transaction_id', $client->getTransactionID());
+                        update_post_meta($order->get_id(), 'maxipago_response_message', $client->getMessage());
+                        update_post_meta($order->get_id(), 'maxipago_processor_transaction_id', $client->getProcessorTransactionID());
+                        update_post_meta($order->get_id(), 'maxipago_processor_code', $client->getProcessorCode());
+
+                        $this->updatePostMeta($order->get_id(), $result);
+                    }
+                    $updated = $this->set_order_status(
+                        $client->getReferenceNum(),
+                        $client->getResponseCode(),
+                        $this->gateway->invoice_prefix,
+                        $this->gateway->processing_type
+                    );
+                    if ($updated) {
+                        WC()->cart->empty_cart();
+                        $result = array(
+                            'result' => 'success',
+                            'redirect' => $order->get_checkout_order_received_url()
+                        );
+                    }
+                }
+            } else {
+                wc_add_notice('<strong>' . esc_html($this->gateway->title) . '</strong>: ' .
+                    esc_html(__('An error has occurred while processing your payment, please try again.', 'woocommerce-maxipago')), 'error');
+            }
+        }
+
+        return $result;
+    }
+
+    public function cancel_recurring_order(WC_Subscription $subscription, $post)
+    {
+        $result = array(
+            'result' => 'fail',
+            'redirect' => ''
+        );
+
+        $this->instantiate_logger();
+
+        $client = $this->get_maxipago_client();
+
+        /** @var WC_Order $order */
+        $order = $subscription->get_parent();
+
+        $order_id = get_post_meta($order->get_id(), 'orderID', 'single');
+
+        if($order_id)
+        {
+            $request_data = array(
+                'orderID' => get_post_meta($order->get_id(), 'orderID', 'single')
+            );
+
+            $client->cancelRecurring($request_data);
+
+            if ($this->log) {
+                $this->log->add('maxipago_api', '------------- creditCardCancelRecurring -------------');
+
+                $xmlRequest = preg_replace('/<number>(.*)<\/number>/m', '<number>*****</number>', $client->xmlRequest);
+                $xmlRequest = preg_replace('/<cvvNumber>(.*)<\/cvvNumber>/m', '<cvvNumber>***</cvvNumber>', $xmlRequest);
+                $xmlRequest = preg_replace('/<token>(.*)<\/token>/m', '<token>***</token>', $xmlRequest);
+                $this->log->add('maxipago_api', $xmlRequest);
+                $this->log->add('maxipago_api', $client->xmlResponse);
+            }
+
+            update_post_meta($order->get_id(), '_maxipago_request_data', $request_data);
+
+            $result = $client->getResult();
+
+            if (!empty($result)) {
+                update_post_meta($order->get_id(), '_maxipago_result_data', $result);
+                if ($client->isErrorResponse()) {
+                    update_post_meta($order->get_id(), 'maxipago_error', $client->getMessage());
+                    wc_add_notice('<strong>' . esc_html($this->gateway->title) . '</strong>: ' . wc_clean($client->getMessage()), 'error');
+                } else {
+                    $this->updatePostMeta($order->get_id(), $result);
+                    $result = array(
+                        'result' => 'success',
+                        'redirect' => ''
+                    );
+                }
+            } else {
+                wc_add_notice('<strong>' . esc_html($this->gateway->title) . '</strong>: ' .
+                    esc_html(__('An error has occurred while processing your payment, please try again.', 'woocommerce-maxipago')), 'error');
+            }
+        }
+
+        return $result;
+    }
+
+    public function sale_order(WC_Order $order, $post)
+    {
+        $result = array(
+            'result' => 'fail',
+            'redirect' => ''
+        );
+
+        $this->instantiate_logger();
 
         $is_valid = $this->validate_fields($post);
 
@@ -234,14 +756,13 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         }
         if ($is_valid) {
 
-            $client = new maxiPago();
-            $client->setCredentials($this->gateway->merchant_id, $this->gateway->merchant_key);
-            $client->setEnvironment($this->gateway->environment);
+            $client = $this->get_maxipago_client();
 
             $token_number = null;
             if ($this->is_sale_with_token($post)) {
                 $token_id = $post['wc-maxipago-cc-payment-token'];
                 $token_number = $this->get_token($token_id);
+                $card_type = $this->get_card_type($token_id);
             }
 
             $expiry = $this->get_cc_expiration(sanitize_text_field($post['maxipago_card_expiry']));
@@ -250,13 +771,10 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
 
             $customer_document = $post['maxipago_cc_document'];
 
-            if($this->gateway->installments == 1) $cc_installments = 1;
+            if ($this->gateway->installments == 1) $cc_installments = 1;
 
             $cc_brand = $this->get_cc_brand($cc_number);
             $processor_id = $this->get_processor_id_by_cc_brand($cc_brand);
-
-            $fraud_check = $this->gateway->fraud_check == 'yes' ? 'Y' : 'N';
-            $fraud_check = $this->gateway->processing_type != WC_maxiPago_CC_Gateway::PROCESSING_TYPE_SALE ? $fraud_check : 'N';
 
             $charge_total = (float)$order->get_total();
             $has_interest = 'N';
@@ -265,40 +783,23 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
                 $charge_total = $this->get_total_by_installments($charge_total, $cc_installments, $this->gateway->interest_rate);
             }
 
-            $ipAddress = $this->clean_ip_address($order->customer_ip_address);
+            $ipAddress = $this->clean_ip_address($order->get_customer_ip_address());
+            $orderId = $this->gateway->invoice_prefix . $order->get_id();
 
             $request_data = array(
-                'referenceNum' => $this->gateway->invoice_prefix . $order->id,
+                'referenceNum' => $orderId,
                 'processorID' => $processor_id,
                 'ipAddress' => $ipAddress,
-                'fraudCheck' => $fraud_check,
                 'customerIdExt' => $customer_document,
-
-                'bmail' => $order->billing_email,
-                'bname' => $order->billing_first_name . ' ' . $order->billing_last_name,
-                'baddress' => $order->billing_address_1,
-                'baddress2' => $order->billing_address_2,
-                'bcity' => $order->billing_city,
-                'bstate' => $order->billing_state,
-                'bpostalcode' => $this->clean_number($order->billing_postcode),
-                'bcountry' => $order->billing_country,
-                'bphone' => $this->clean_number($order->billing_phone),
-
-                'smail' => $order->billing_email,
-                'sname' => $order->shipping_first_name . ' ' . $order->shipping_last_name,
-                'saddress' => $order->shipping_address_1,
-                'saddress2' => $order->shipping_address_2,
-                'scity' => $order->shipping_city,
-                'sstate' => $order->shipping_state,
-                'spostalcode' => $this->clean_number($order->shipping_postcode),
-                'scountry' => $order->shipping_country,
-                'sphone' => $this->clean_number($order->billing_phone),
-
                 'currencyCode' => get_woocommerce_currency(),
                 'chargeTotal' => wc_format_decimal($charge_total, wc_get_price_decimals()),
                 'numberOfInstallments' => $cc_installments,
                 'chargeInterest' => $has_interest
             );
+
+            $addressData = $this->getAddressData($order, $customer_document);
+            $orderData = $this->getOrderData($order);
+            $request_data = array_merge($request_data, $addressData, $orderData);
 
             if (!$this->is_sale_with_token($post)) {
                 $request_data['number'] = $cc_number;
@@ -307,11 +808,14 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
                 $request_data['cvvNumber'] = sanitize_text_field($post['maxipago_card_cvc']);
             } else {
                 $customer_id = get_current_user_id();
-                $maxipago_customer_id = get_user_meta($customer_id, '_maxipago_customer_id', true);
+                $maxipago_customer_id = get_user_meta($customer_id, '_maxipago_customer_id_' . $this->gateway->merchant_id, true);
                 $request_data['token'] = $token_number;
                 $request_data['customerId'] = $maxipago_customer_id;
                 $request_data['cvvNumber'] = sanitize_text_field($post['maxipago_card_cvc_token']);
             }
+
+            $fraudcheck_data = $this->getFraudCheckData($order);
+            $request_data = array_merge($request_data, $fraudcheck_data);
 
             if ($this->gateway->soft_descriptor) {
                 $request_data['softDescriptor'] = $this->gateway->soft_descriptor;
@@ -326,12 +830,38 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
                 $this->save_token($cc_info);
             }
 
+            $use3DS = $this->gateway->use3DS == 'yes' ? true : false;
+            if ($use3DS) {
+                $request_data['mpiProcessorID'] = $this->gateway->mpi_processor;
+                $request_data['onFailure'] = $this->gateway->failure_action;
+            }
+
+            $addressData = $this->getAddressData($order, $customer_document);
+            $orderData = $this->getOrderData($order);
+            $request_data = array_merge($request_data, $addressData, $orderData);
+
+            if($this->is_split_payment_active()) {
+                $request_data['splitPaymentType'] = 'single';
+                $seller_data = $this->getSellerData($order, $request_data['numberOfInstallments']);
+                $request_data = array_merge($request_data, $seller_data);
+            }
+
             if ($this->gateway->processing_type == 'auth') {
-                $client->creditCardAuth($request_data);
-                if ($this->log) $this->log->add('maxipago_api', '------------- creditCardAuth -------------');
+                if ($use3DS) {
+                    $client->authCreditCard3DS($request_data);
+                    if ($this->log) $this->log->add('maxipago_api', '------------- authCreditCard3DS -------------');
+                } else {
+                    $client->creditCardAuth($request_data);
+                    if ($this->log) $this->log->add('maxipago_api', '------------- creditCardAuth -------------');
+                }
             } else {
-                $client->creditCardSale($request_data);
-                if ($this->log) $this->log->add('maxipago_api', '------------- creditCardSale -------------');
+                if ($use3DS) {
+                    $client->saleCreditCard3DS($request_data);
+                    if ($this->log) $this->log->add('maxipago_api', '------------- saleCreditCard3DS -------------');
+                } else {
+                    $client->creditCardSale($request_data);
+                    if ($this->log) $this->log->add('maxipago_api', '------------- creditCardSale -------------');
+                }
             }
 
             if ($this->log) {
@@ -342,28 +872,34 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
                 $this->log->add('maxipago_api', $client->xmlResponse);
             }
 
-            update_post_meta($order->id, '_maxipago_request_data', $request_data);
+            update_post_meta($order->get_id(), '_maxipago_request_data', $request_data);
 
             $result = $client->getResult();
 
             if (!empty($result)) {
-                update_post_meta($order->id, '_maxipago_result_data', $result);
+                update_post_meta($order->get_id(), '_maxipago_result_data', $result);
                 if ($client->isErrorResponse()) {
-                    update_post_meta($order->id, 'maxipago_transaction_id', $client->getTransactionID());
-                    update_post_meta($order->id, 'maxipago_error', $client->getMessage());
+                    update_post_meta($order->get_id(), 'maxipago_transaction_id', $client->getTransactionID());
+                    update_post_meta($order->get_id(), 'maxipago_error', $client->getMessage());
                     wc_add_notice('<strong>' . esc_html($this->gateway->title) . '</strong>: ' . wc_clean($client->getMessage()), 'error');
                 } else {
                     if ($client->getTransactionID()) {
-                        update_post_meta($order->id, 'maxipago_transaction_id', $client->getTransactionID());
-                        update_post_meta($order->id, 'maxipago_response_message', $client->getMessage());
-                        update_post_meta($order->id, 'maxipago_processor_transaction_id', $client->getProcessorTransactionID());
-                        update_post_meta($order->id, 'maxipago_processor_code', $client->getProcessorCode());
-                        if ($fraud_check == 'Y') {
-                            update_post_meta($order->id, 'maxipago_fraud_score', $client->getFraudScore());
+                        update_post_meta($order->get_id(), 'maxipago_transaction_id', $client->getTransactionID());
+                        update_post_meta($order->get_id(), 'maxipago_response_message', $client->getMessage());
+                        update_post_meta($order->get_id(), 'maxipago_processor_transaction_id', $client->getProcessorTransactionID());
+                        update_post_meta($order->get_id(), 'maxipago_processor_code', $client->getProcessorCode());
+                        if ($fraudcheck_data['fraudCheck'] == 'Y') {
+                            update_post_meta($order->get_id(), 'maxipago_fraud_score', $client->getFraudScore());
                         }
+
+                        $this->updatePostMeta($order->get_id(), $result);
                     }
-                    $updated = $this->set_order_status($client->getReferenceNum(), $client->getResponseCode(),
-                        $this->gateway->invoice_prefix, $this->gateway->processing_type);
+                    $updated = $this->set_order_status(
+                        $client->getReferenceNum(),
+                        $client->getResponseCode(),
+                        $this->gateway->invoice_prefix,
+                        $this->gateway->processing_type
+                    );
                     if ($updated) {
                         WC()->cart->empty_cart();
                         $result = array(
@@ -380,9 +916,10 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return $result;
     }
 
-    public function capture_order(WC_Order $order) {
+    public function capture_order(WC_Order $order)
+    {
         $message = __('The order does not allow capture.', 'woocommerce-maxipago');
-        if ($order->payment_method == WC_maxiPago_CC_Gateway::ID && $order->get_status() == 'on-hold') {
+        if ($order->get_payment_method() == WC_maxiPago_CC_Gateway::ID && $order->get_status() == 'on-hold') {
             $cc_settings = get_option('woocommerce_maxipago-cc_settings');
             if (is_array($cc_settings)) {
                 if ('yes' == $cc_settings['save_log'] && class_exists('WC_Logger')) {
@@ -392,7 +929,7 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
                 $client = new maxiPago();
                 $client->setCredentials($cc_settings['merchant_id'], $cc_settings['merchant_key']);
                 $client->setEnvironment($cc_settings['environment']);
-                $result_data = get_post_meta($order->id, '_maxipago_result_data', true);
+                $result_data = get_post_meta($order->get_id(), '_maxipago_result_data', true);
                 if ($result_data) {
                     $data = array(
                         'orderID' => $result_data['orderID'],
@@ -406,7 +943,7 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
                         $this->log->add('maxipago_api', $client->xmlResponse);
                     }
                     $result = $client->getResult();
-                    update_post_meta($order->id, '_maxipago_capture_result_data', $result);
+                    update_post_meta($order->get_id(), '_maxipago_capture_result_data', $result);
                     if (!$client->isErrorResponse() && $client->getResponseCode() == 0) {
                         $order->payment_complete();
                         $message = sprintf(__('Payment captured successfully - User: %s', 'woocommerce-maxipago'), wp_get_current_user()->display_name);
@@ -422,9 +959,10 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return false;
     }
 
-    public function refund_order(WC_Order $order) {
+    public function refund_order(WC_Order $order)
+    {
         $message = __('The order does not allow refund.', 'woocommerce-maxipago');
-        if ($order->payment_method == WC_maxiPago_CC_Gateway::ID && $order->get_status() == 'processing') {
+        if ($order->get_payment_method() == WC_maxiPago_CC_Gateway::ID && $order->get_status() == 'processing') {
             $cc_settings = get_option('woocommerce_maxipago-cc_settings');
             if (is_array($cc_settings)) {
                 if ('yes' == $cc_settings['save_log'] && class_exists('WC_Logger')) {
@@ -434,10 +972,10 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
                 $client = new maxiPago();
                 $client->setCredentials($cc_settings['merchant_id'], $cc_settings['merchant_key']);
                 $client->setEnvironment($cc_settings['environment']);
-                $result_data = get_post_meta($order->id, '_maxipago_result_data', true);
+                $result_data = get_post_meta($order->get_id(), '_maxipago_result_data', true);
                 if ($result_data) {
                     $can_void = false;
-                    $capture_data = get_post_meta($order->id, '_maxipago_capture_result_data', true);
+                    $capture_data = get_post_meta($order->get_id(), '_maxipago_capture_result_data', true);
                     if ($capture_data) {
                         $can_void = date('Ymd', $capture_data['transactionTimestamp']) == date('Ymd');
                     } elseif ($result_data) {
@@ -463,7 +1001,7 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
                         $this->log->add('maxipago_api', $client->xmlResponse);
                     }
                     $result = $client->getResult();
-                    update_post_meta($order->id, '_maxipago_refund_result_data', $result);
+                    update_post_meta($order->get_id(), '_maxipago_refund_result_data', $result);
                     if (!$client->isErrorResponse() && $client->getResponseCode() == 0) {
                         if ($can_void) {
                             $message = sprintf(__('Payment cancelled successfully - User: %s', 'woocommerce-maxipago'), wp_get_current_user()->display_name);
@@ -484,13 +1022,14 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return false;
     }
 
-    public function save_token($cc_info) {
+    public function save_token($cc_info)
+    {
         $cc_expiry = $this->get_cc_expiration($cc_info['cc_expiry']);
         $cc_brand = $this->get_cc_brand($this->clean_number($cc_info['cc_number']));
         $customer_id = get_current_user_id();
         $user = new WP_User($customer_id);
         $cc_settings = get_option('woocommerce_maxipago-cc_settings');
-        $maxipago_customer_id = get_user_meta($customer_id, '_maxipago_customer_id_'.$cc_settings['merchant_id'], true);
+        $maxipago_customer_id = get_user_meta($customer_id, '_maxipago_customer_id_' . $cc_settings['merchant_id'], true);
         if (!$cc_settings) return false;
         if ('yes' == $cc_settings['save_log'] && class_exists('WC_Logger')) {
             $this->log = new WC_Logger();
@@ -516,7 +1055,7 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
             if (!$maxipago_customer_id) {
                 return false;
             }
-            add_user_meta($customer_id, '_maxipago_customer_id_'.$cc_settings['merchant_id'], $maxipago_customer_id);
+            add_user_meta($customer_id, '_maxipago_customer_id_' . $cc_settings['merchant_id'], $maxipago_customer_id);
         }
 
         $date = new DateTime($cc_expiry['year'] . '-' . $cc_expiry['month'] . '-01');
@@ -562,11 +1101,12 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return false;
     }
 
-    public function delete_token(WC_Payment_Token_CC $object_token) {
+    public function delete_token(WC_Payment_Token_CC $object_token)
+    {
         $token = $object_token->get_token();
         $customer_id = get_current_user_id();
         $cc_settings = get_option('woocommerce_maxipago-cc_settings');
-        $maxipago_customer_id = get_user_meta($customer_id, '_maxipago_customer_id_'.$cc_settings['merchant_id'], true);
+        $maxipago_customer_id = get_user_meta($customer_id, '_maxipago_customer_id_' . $cc_settings['merchant_id'], true);
         if (!$maxipago_customer_id) return false;
         if (!$cc_settings) return false;
         if ('yes' == $cc_settings['save_log'] && class_exists('WC_Logger')) {
@@ -588,9 +1128,86 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
         return true;
     }
 
-    public function get_token($token_id) {
+    public function get_mpi_processors()
+    {
+        $processors = array(
+            '41' => __('Test', 'woocommerce-maxipago'),
+            '40' => __('Production', 'woocommerce-maxipago'),
+        );
+        return $processors;
+    }
+
+    public function get_mpi_action()
+    {
+        $processors = array(
+            'decline' => __('Stop Processing', 'woocommerce-maxipago'),
+            'continue' => __('Continue Processing', 'woocommerce-maxipago'),
+        );
+        return $processors;
+    }
+
+    public function get_token($token_id)
+    {
         $token = new WC_Payment_Token_CC($token_id);
         return $token->get_token();
+    }
+
+    public function get_card_type($token_id)
+    {
+        $token = new WC_Payment_Token_CC($token_id);
+        return $token->get_card_type();
+    }
+
+    public function is_split_payment_active()
+    {
+        $settings = get_option('woocommerce_maxipago-cc_settings');
+
+        if(isset($settings['split_payment']) && $settings['split_payment'] == 'yes')
+            return true;
+
+        return false;
+    }
+
+    public function get_split_payment_seller($product_id)
+    {
+        $product_seller_id = get_post_meta($product_id,'seller_id',true);
+
+        if($product_seller_id)
+        {
+            $sellers = get_option('sellers');
+
+            if($sellers && count($sellers) > 0)
+            {
+                foreach($sellers as $seller)
+                {
+                    $seller_id = $seller['seller_merchant_id'];
+
+                    if($seller_id == $product_seller_id)
+                    {
+                        return array(
+                            'merchant_id' => $seller_id,
+                            'merchant_key' => $seller['seller_merchant_key'],
+                            'name' => $seller['seller_name'],
+                            'mdr' => ((float) $seller['seller_percentual']) / ((float) 100),
+                            'days_to_pay' => $seller['seller_days_to_pay'],
+                            'use_installment' => $seller['seller_installment_payment'] ? $seller['seller_installment_payment'] == 'on' : false,
+                            'installments_amount' => $seller['seller_installments_amount']
+                        );
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+    
+    public function get_cc_expiration_by_token($token_id)
+    {
+        $token = new WC_Payment_Token_CC($token_id);
+        return array(
+          'month' => $token->get_expiry_month(),
+          'year' => $token->get_expiry_year()
+        );
     }
 
 }

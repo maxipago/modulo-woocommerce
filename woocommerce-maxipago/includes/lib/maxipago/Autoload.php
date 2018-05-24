@@ -5,7 +5,8 @@
 // 
 //     require_once "<path>/maxipago/Autoload.php"
 
-function maxiPago_Autoload($className) {
+function maxiPago_Autoload($className)
+{
     if ($className === "KLogger") {
         $fileName = $className . ".php";
     } else {

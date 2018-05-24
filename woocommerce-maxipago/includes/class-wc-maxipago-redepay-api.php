@@ -3,16 +3,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_maxiPago_TEF_API extends WC_maxiPago_API
+class WC_maxiPago_RedePay_API extends WC_maxiPago_API
 {
 
     private function validate_fields($formData)
     {
         try {
-            if (!isset($formData['maxipago_tef_bank_code']) || '' === $formData['maxipago_tef_bank_code']) {
-                throw new Exception(__('Please select a bank.', 'woocommerce-maxipago'));
-            }
-            if (!isset($formData['maxipago_tef_document']) || '' === $formData['maxipago_tef_document'] || !$this->check_document($formData['maxipago_tef_document'])) {
+            if (!isset($formData['maxipago_redepay_document']) || '' === $formData['maxipago_redepay_document'] || !$this->check_document($formData['maxipago_redepay_document'])) {
                 throw new Exception(__('Please type the valid document number.', 'woocommerce-maxipago'));
             }
         } catch (Exception $e) {
@@ -37,18 +34,17 @@ class WC_maxiPago_TEF_API extends WC_maxiPago_API
             $client->setCredentials($this->gateway->merchant_id, $this->gateway->merchant_key);
             $client->setEnvironment($this->gateway->environment);
 
-            $customer_document = $post['maxipago_tef_document'];
-            $tef_bank = $post['maxipago_tef_bank_code'];
+            $customer_document = $post['maxipago_redepay_document'];
 
             $ipAddress = $this->clean_ip_address($order->get_customer_ip_address());
 
             $request_data = array(
                 'referenceNum' => $this->gateway->invoice_prefix . $order->get_id(),
-                'processorID' => $tef_bank,
+                'processorID' => '18',
                 'ipAddress' => $ipAddress,
-                'customerIdExt' => $customer_document,
                 'chargeTotal' => wc_format_decimal($order->get_total(), wc_get_price_decimals()),
-                'parametersURL' => '',
+                'shippingTotal' => wc_format_decimal($order->get_shipping_total(), wc_get_price_decimals()),
+                'parametersURL' => 'type=redepay',
             );
 
 
@@ -56,8 +52,8 @@ class WC_maxiPago_TEF_API extends WC_maxiPago_API
             $orderData = $this->getOrderData($order);
             $request_data = array_merge($request_data, $addressData, $orderData);
 
-            if ($this->log) $this->log->add('maxipago_api', '------------- onlineDebitSale -------------');
-            $client->onlineDebitSale($request_data);
+            if ($this->log) $this->log->add('maxipago_api', '------------- redepay -------------');
+            $client->redepay($request_data);
 
             if ($this->log) {
                 $this->log->add('maxipago_api', $client->xmlRequest);
@@ -83,7 +79,7 @@ class WC_maxiPago_TEF_API extends WC_maxiPago_API
                         $this->updatePostMeta($order->get_id(), $result);
                     }
                     $updated = $this->set_order_status(
-                        $client->getReferenceNum(),
+                        $order->get_id(),
                         $client->getResponseCode(),
                         $this->gateway->invoice_prefix
                     );

@@ -1,16 +1,18 @@
 <?php
 
-class maxiPago_RequestBase {
+class maxiPago_RequestBase
+{
 
     protected $version = '3.1.1.15';
-    protected $timeout = 30;
+    protected $timeout = 60;
     protected static $sslVerifyPeer = 1;
     protected static $sslVerifyHost = 2;
     public static $logger;
     public static $loggerSev;
     public static $debug;
 
-    public function setEndpoint($param) {
+    public function setEndpoint($param)
+    {
         try {
             if (!$param) {
                 throw new BadMethodCallException('[maxiPago Class] INTERNAL ERROR on ' . __METHOD__ . ' method: no Endpoint defined');
@@ -21,13 +23,14 @@ class maxiPago_RequestBase {
             }
         } catch (Exception $e) {
             if (is_object(self::$logger)) {
-                self::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                self::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
     }
 
-    public function setTransactionType($param) {
+    public function setTransactionType($param)
+    {
         try {
             if (!$param) {
                 throw new BadMethodCallException('[maxiPago Class] INTERNAL ERROR on ' . __METHOD__ . ' method: no Transaction Type defined');
@@ -35,13 +38,14 @@ class maxiPago_RequestBase {
             $this->type = $param;
         } catch (Exception $e) {
             if (is_object(self::$logger)) {
-                self::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                self::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
     }
 
-    public function setVars($array) {
+    public function setVars($array)
+    {
         try {
             if (!$array) {
                 throw new BadMethodCallException('[maxiPago Class] INTERNAL ERROR on ' . __METHOD__ . ' method: no array to format.', 400);
@@ -58,18 +62,20 @@ class maxiPago_RequestBase {
             $this->validateCall();
         } catch (Exception $e) {
             if (is_object(self::$logger)) {
-                self::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                self::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
     }
 
-    public static function setSslVerify($param) {
+    public static function setSslVerify($param)
+    {
         self::$sslVerifyHost = $param;
         self::$sslVerifyPeer = $param;
     }
 
-    public static function setLogger($path, $severity = 'INFO') {
+    public static function setLogger($path, $severity = 'INFO')
+    {
         switch ($severity) {
             case "EMERG":
                 self::$logger = new KLogger($path, KLogger::EMERG);
@@ -103,13 +109,14 @@ class maxiPago_RequestBase {
         }
     }
 
-    public static function clearForLog($text) {
+    public static function clearForLog($text)
+    {
         if ((!isset($text)) || (self::$loggerSev == 'DEBUG')) {
             return $text;
         } elseif (is_array($text)) {
-            $text["cvvNumber"] = str_ireplace($text["cvvNumber"], str_repeat("*", strlen($text["cvvNumber"])), $text["cvvNumber"]);
-            if (maxiPago_ServiceBase::checkCreditCard($text["number"])) {
-                $text["number"] = str_ireplace($text["number"], substr_replace($text["number"], str_repeat('*', strlen($text["number"]) - 4), '4'), $text["number"]);
+            @$text["cvvNumber"] = str_ireplace($text["cvvNumber"], str_repeat("*", strlen($text["cvvNumber"])), $text["cvvNumber"]);
+            if (maxiPago_ServiceBase::checkCreditCard(@$text["number"])) {
+                @$text["number"] = str_ireplace($text["number"], substr_replace($text["number"], str_repeat('*', strlen($text["number"]) - 4), '4'), $text["number"]);
             }
             return $text;
         } elseif (strlen($text) >= 8) {
@@ -119,7 +126,8 @@ class maxiPago_RequestBase {
         }
     }
 
-    private function validateCall() {
+    private function validateCall()
+    {
         try {
             if ((strlen($this->processorID) > 0) && ((!ctype_digit((string)$this->processorID)) || (strlen($this->processorID) > 2))) {
                 throw new InvalidArgumentException("[maxiPago Class] Field 'processorID' is invalid. Please check documentation for valid values.");
@@ -145,27 +153,31 @@ class maxiPago_RequestBase {
             if ((strlen($this->chargeInterest) > 0) && (!in_array(strtoupper($this->chargeInterest), array("Y", "N")))) {
                 throw new InvalidArgumentException("[maxiPago Class] Field 'chargeInterest' only accepts Y and N as value.");
             }
-            if ((strlen($this->expirationDate) > 0) && (date("Ymd", strtotime($this->expirationDate)) < date("Ymd"))) {
-                throw new InvalidArgumentException("[maxiPago Class] Boleto expiration date can only be set in the future.");
-            }
             if ((strlen($this->instructions) > 0) && (strlen($this->instructions) > 350)) {
                 throw new InvalidArgumentException("[maxiPago Class] Boleto instructions cannot be longer than 350 characters.");
             }
         } catch (Exception $e) {
             if (is_object(self::$logger)) {
-                self::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                self::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
     }
 
-    public function processRequest() {
+    public function processRequest()
+    {
         try {
             switch ($this->type) {
                 case "auth":
                 case "sale":
                     $this->tag = "<transaction-request></transaction-request>";
                     $this->setAuthOrSale();
+                    if ($this->fraudCheck == "Y") {
+                        $this->setFraudDetails();
+                    }
+                    if (($this->fraudCheck == "Y") || (isset($this->splitPaymentType) && strlen($this->splitPaymentType) > 0)) {
+                        $this->setItens();
+                    }
                     break;
                 case "capture":
                 case "return":
@@ -190,6 +202,35 @@ class maxiPago_RequestBase {
                     $this->type = "sale";
                     $this->setBoleto();
                     break;
+                case "redepay":
+                    $this->tag = "<transaction-request></transaction-request>";
+                    $this->type = "sale";
+                    $this->setRedepay();
+                    break;
+                case "authCreditCard3DS":
+                    $this->tag = "<transaction-request></transaction-request>";
+                    $this->type = "auth";
+                    $this->setAuthCreditCard3DS();
+                    if ($this->fraudCheck == "Y") {
+                        $this->setFraudDetails();
+                    }
+                    break;
+                case "saleCreditCard3DS":
+                    $this->tag = "<transaction-request></transaction-request>";
+                    $this->type = "sale";
+                    $this->setSaleCreditCard3DS();
+                    if ($this->fraudCheck == "Y") {
+                        $this->setFraudDetails();
+                    }
+                    break;
+                case "saleDebitCard3DS":
+                    $this->tag = "<transaction-request></transaction-request>";
+                    $this->type = "sale";
+                    $this->setSaleDebitCard3DS();
+                    if ($this->fraudCheck == "Y") {
+                        $this->setFraudDetails();
+                    }
+                    break;
                 case "add-consumer":
                 case "delete-consumer":
                 case "update-consumer":
@@ -199,26 +240,35 @@ class maxiPago_RequestBase {
                     $this->tag = "<api-request></api-request>";
                     $this->setApiRequest();
                     break;
+                case "modify-recurring":
+                    $this->tag = "<api-request></api-request>";
+                    $this->setModifyRecurring();
+                    break;
+                case "add-payment-order":
+                case "cancel-payment-order":
+                case "get-payment-order":
+                    $this->tag = "<api-request></api-request>";
+                    $this->setPaymentOrderRequest();
+                    break;
                 case "report":
                     $this->tag = "<rapi-request></rapi-request>";
                     $this->type = "transactionDetailReport";
                     $this->setRapiRequest();
                     break;
                 default:
-                    throw new BadMethodCallException('[maxiPago Class] Transaction type ' . $type . ' is invalid. Transaction was not sent.');
+                    throw new BadMethodCallException('[maxiPago Class] Transaction type ' . $this->type . ' is invalid. Transaction was not sent.');
                     break;
             }
             return $this->sendXml();
         } catch (Exception $e) {
             if (is_object(self::$logger)) {
-                self::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                self::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
     }
 
-    protected $address1;
-    protected $address2;
+
     protected $authentication;
     protected $baddress;
     protected $baddress2;
@@ -226,51 +276,19 @@ class maxiPago_RequestBase {
     protected $bcountry;
     protected $bemail;
     protected $billingAddress1;
-    protected $billingAddress2;
-    protected $billingCity;
-    protected $billingCountry;
-    protected $billingEmail;
-    protected $billingName;
-    protected $billingPhone;
-    protected $billingState;
-    protected $billingZip;
     protected $bname;
     protected $bphone;
     protected $bpostalcode;
     protected $bstate;
-    protected $chargeInterest;
-    protected $chargeTotal;
-    protected $city;
     protected $comments;
-    protected $country;
     protected $creditCardNumber;
-    protected $currencyCode;
-    protected $customerId;
-    protected $customerIdExt;
     protected $cvvInd;
-    protected $cvvNumber;
-    protected $dob;
-    protected $email;
     protected $endDate;
     protected $endTime;
     protected $expirationDate;
     protected $expirationMonth;
     protected $expirationYear;
-    protected $expMonth;
-    protected $expYear;
-    protected $failureThreshold;
-    protected $firstName;
-    protected $fraudCheck;
-    protected $frequency;
-    protected $iataFee;
-    protected $installments;
     protected $instructions;
-    protected $ipAddress;
-    protected $lastName;
-    protected $merchantId;
-    protected $merchantKey;
-    protected $number;
-    protected $numberOfInstallments;
     protected $onFileComment;
     protected $onFileEndDate;
     protected $onFileMaxChargeAmount;
@@ -282,11 +300,7 @@ class maxiPago_RequestBase {
     protected $pageSize;
     protected $pageToken;
     protected $parametersURL = '';
-    protected $period;
-    protected $phone;
-    protected $processorID;
     protected $recurring;
-    protected $referenceNum;
     protected $requestToken;
     protected $saddress;
     protected $saddress2;
@@ -294,19 +308,148 @@ class maxiPago_RequestBase {
     protected $scity;
     protected $scountry;
     protected $semail;
-    protected $sex;
     protected $sname;
     protected $softDescriptor;
     protected $sphone;
     protected $spostalcode;
     protected $sstate;
-    protected $startDate;
     protected $startTime;
-    protected $state;
     protected $token;
     protected $transactionID;
     protected $transactionId;
-    public $xmlResponse;
-    protected $zip;
+    protected $authenticated;
+    protected $authenticationURL;
+    protected $processorTransactionID;
+    protected $processorReferenceNumber;
 
+    public $xmlRequest;
+    public $xmlResponse;
+
+    //Recurring
+    protected $action;
+    protected $startDate;
+    protected $frequency;
+    protected $period;
+    protected $installments;
+    protected $firstAmount;
+    protected $lastAmount;
+    protected $lastDate;
+    protected $failureThreshold;
+
+    //Authentication Data
+    protected $merchantId;
+    protected $merchantKey;
+
+    //Order Data
+    protected $processorID;
+    protected $referenceNum;
+    protected $fraudCheck;
+    protected $customerIdExt;
+    protected $ipAddress;
+    protected $invoiceNumber;
+    protected $userAgent;
+
+    //Authentication Data
+    protected $mpiProcessorID;
+    protected $onFailure;
+
+    //Billing Data 
+    protected $billingId;
+    protected $billingName;
+    protected $billingAddress;
+    protected $billingAddress2;
+    protected $billingDistrict;
+    protected $billingCity;
+    protected $billingZip;
+    protected $billingState;
+    protected $billingPostalCode;
+    protected $billingCountry;
+    protected $billingEmail;
+    protected $billingPhone;
+    protected $billingCompanyName;
+    protected $billingType;
+    protected $billingGender;
+    protected $billingBirthDate;
+    protected $billingPhoneType;
+    protected $billingPhoneCountryCode;
+    protected $billingPhoneAreaCode;
+    protected $billingPhoneNumber;
+    protected $billingPhoneExtension;
+    protected $billingDocumentType;
+    protected $billingDocumentValue;
+
+    //Shipping Data
+    protected $shippingId;
+    protected $shippingName;
+    protected $shippingAddress;
+    protected $shippingAddress2;
+    protected $shippingDistrict;
+    protected $shippingCity;
+    protected $shippingZip;
+    protected $shippingState;
+    protected $shippingPostalCode;
+    protected $shippingCountry;
+    protected $shippingEmail;
+    protected $shippingPhone;
+    protected $shippingType;
+    protected $shippingGender;
+    protected $shippingBirthDate;
+    protected $shippingPhoneType;
+    protected $shippingPhoneCountryCode;
+    protected $shippingPhoneAreaCode;
+    protected $shippingPhoneNumber;
+    protected $shippingPhoneExtension;
+    protected $shippingDocumentType;
+    protected $shippingDocumentValue;
+
+    //Fraud Data
+    protected $fraudProcessorID;
+    protected $captureOnLowRisk;
+    protected $voidOnHighRisk;
+    protected $websiteId;
+    protected $fraudToken;
+
+    //CreditCard Data
+    protected $number;
+    protected $expMonth;
+    protected $expYear;
+    protected $cvvNumber;
+
+    //Payment Data
+    protected $currencyCode;
+    protected $chargeTotal;
+    protected $iataFee;
+    protected $chargeInterest;
+    protected $numberOfInstallments;
+    protected $shippingTotal;
+
+    //Payment Order
+    protected $operation;
+    protected $description;
+    protected $emailSubject;
+    protected $payOrderId;
+
+    //Itens Data
+    protected $itemIndex;
+    protected $itemCount;
+    protected $itemProductCode;
+    protected $itemDescription;
+    protected $itemQuantity;
+    protected $itemTotalAmount;
+    protected $itemUnitCost;
+
+    //Create, Update and Delete Customers 
+    protected $firstName;
+    protected $lastName;
+    protected $address1;
+    protected $address2;
+    protected $city;
+    protected $state;
+    protected $zip;
+    protected $country;
+    protected $phone;
+    protected $email;
+    protected $dob;
+    protected $sex;
+    protected $customerId;
 }

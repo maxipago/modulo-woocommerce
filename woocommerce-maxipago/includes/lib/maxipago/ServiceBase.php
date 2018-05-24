@@ -1,17 +1,18 @@
 <?php
 
-class maxiPago_ServiceBase {
+class maxiPago_ServiceBase
+{
 
     protected $credentials = array();
     protected $host;
 
     /**
      * Sets the Merchant Credentials
-     *
      * @param string $mid
      * @param string $key
      */
-    public function setCredentials($mid = null, $key = null) {
+    public function setCredentials($mid = null, $key = null)
+    {
         try {
             if ((ctype_digit((string)$mid)) && (strlen($key) == 24)) {
                 $this->credentials["merchantId"] = $mid;
@@ -32,10 +33,10 @@ class maxiPago_ServiceBase {
 
     /**
      * Sets the environment of the transaction (TEST or LIVE)
-     *
      * @param string $param
      */
-    public function setEnvironment($param = null) {
+    public function setEnvironment($param = null)
+    {
         try {
             if (strtoupper($param) == 'TEST') {
                 maxiPago_RequestBase::setSslVerify(false);
@@ -50,7 +51,7 @@ class maxiPago_ServiceBase {
             }
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -58,10 +59,10 @@ class maxiPago_ServiceBase {
 
     /**
      * Enables the debug output
-     *
      * @param boolean $param
      */
-    public function setDebug($param = false) {
+    public function setDebug($param = false)
+    {
         if (($param == true) || ($param == "1")) {
             maxiPago_RequestBase::$debug = true;
             if (is_object(maxiPago_RequestBase::$logger)) {
@@ -72,13 +73,12 @@ class maxiPago_ServiceBase {
 
     /**
      * Enables logger output
-     *
      * @param string $path
      * @param string $severity
-     *
      * @throws Exception
      */
-    public function setLogger($path, $severity = 'NOTICE') {
+    public function setLogger($path, $severity = 'NOTICE')
+    {
         if (!isset($path)) {
             throw new Exception('Logger path ' . $path . ' is required');
         }
@@ -91,16 +91,13 @@ class maxiPago_ServiceBase {
 
     /**
      * Checks if the card number is valid (Lunh check)
-     *
      * @param string $param
-     *
      * @return boolean
      */
-    public static function checkCreditCard($param = '1') {
+    public static function checkCreditCard($param = '1')
+    {
         $str = '';
-        foreach (array_reverse(str_split($param)) as $i => $c) {
-            $str .= ($i % 2 ? $c * 2 : $c);
-        }
+        foreach (array_reverse(str_split($param)) as $i => $c) $str .= ($i % 2 ? $c * 2 : $c);
         return array_sum(str_split($str)) % 10 == 0 ? true : false;
     }
 

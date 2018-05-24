@@ -164,7 +164,7 @@ msgstr ""
 msgid "Disable"
 msgstr ""
 
-#: includes/class-wc-maxipago-cc-api.php:367
+#: includes/class-wc-maxipago-cc-api.php:[367, 603, 689, 748, 925]
 #: includes/class-wc-maxipago-tef-api.php:105
 #: includes/class-wc-maxipago-ticket-api.php:104
 msgid "An error has occurred while processing your payment, please try again."
@@ -757,4 +757,57 @@ msgstr ""
 
 #. Author URI of the plugin/theme
 msgid "http://www.maxipago.com/"
+msgstr ""
+
+#. woocommerce-maxipago.php:345
+msgid "maxiPago! Split Payment"
+msgstr ""
+
+#. woocommerce-maxipago.php:391
+msgid "Only one subscription allowed per cart!"
+msgstr ""
+
+#. woocommerce-maxipago.php:444
+msgid "Seller(s)"
+msgstr ""
+
+#. woocommerce-maxipago.php:487
+msgid " and "
+msgstr ""
+
+#. woocommerce-maxipago.php:489
+msgid "Three or more sellers"
+msgstr ""
+
+#: includes/class-wc-maxipago-cc-gateway.php:527
+#: includes/admin/views/seller-selector.php:27
+msgid "Seller"
+msgstr ""
+
+#: includes/class-wc-maxipago-cc-gateway.php:230
+msgid "Percentual"
+msgstr ""
+
+#: includes/class-wc-maxipago-cc-gateway.php:231
+msgid "Days to Pay"
+msgstr ""
+
+#: includes/class-wc-maxipago-cc-gateway.php:554
+msgid "+ Add seller"
+msgstr ""
+
+#: includes/class-wc-maxipago-cc-gateway.php:554
+msgid "Remove selected seller(s)"
+msgstr ""
+
+#: includes/admin/views/seller-selector.php:20
+msgid "Choose One..."
+msgstr ""
+
+#: includes/admin/views/html-product-seller.php:11
+msgid "Select a seller..."
+msgstr ""
+
+#: includes/admin/views/html-filter-seller.php:11
+msgid "Filter by Seller..."
 msgstr ""

@@ -9,9 +9,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2017-01-23 15:52-0200\n"
+"PO-Revision-Date: 2018-01-12 10:30-0200\n"
 "Language-Team: \n"
-"X-Generator: Poedit 1.8.11\n"
+"X-Generator: Poedit 2.0.4\n"
 "Last-Translator: \n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Language: pt_BR\n"
@@ -293,11 +293,13 @@ msgstr "Selecione o tipo de ambiente (teste ou produção)."
 
 #: includes/class-wc-maxipago-cc-gateway.php:161
 #: includes/class-wc-maxipago-tef-gateway.php:120
+#: includes/class-wc-maxipago-dc-gateway.php:56
 #: includes/class-wc-maxipago-ticket-gateway.php:123
 msgid "Test"
 msgstr "Teste"
 
 #: includes/class-wc-maxipago-cc-gateway.php:162
+#: includes/class-wc-maxipago-dc-gateway.php:57
 #: includes/class-wc-maxipago-tef-gateway.php:121
 #: includes/class-wc-maxipago-ticket-gateway.php:124
 msgid "Production"
@@ -789,3 +791,117 @@ msgstr "maxiPago Smart Payments"
 #. Author URI of the plugin/theme
 msgid "http://www.maxipago.com/"
 msgstr "http://www.maxipago.com/"
+
+#: includes/class-wc-maxipago-dc-gateway.php:49
+msgid "maxiPago! - Debit Card"
+msgstr "maxiPago! - Cartão de Débito"
+
+#: includes/class-wc-maxipago-dc-gateway.php:49
+msgid "Accept Payments by Debit Card using the maxiPago!"
+msgstr "Aceite pagamentos por Cartão de Débito usando o maxiPago!"
+
+#: includes/class-wc-maxipago-dc-gateway.php:49
+msgid "Enable maxiPago! Debit Card"
+msgstr "Habilitar o maxiPago! Cartão de Débito"
+
+#: includes/class-wc-maxipago-dc-gateway.php:49
+msgid "Debit Card"
+msgstr "Cartão de Débito"
+
+#: includes/class-wc-maxipago-dc-gateway.php:49
+msgid "Pay your order with a debit card."
+msgstr "Pague seu pedido com Cartão de Débito."
+
+#: includes/class-wc-maxipago-redepay-gateway.php:49
+msgid "maxiPago! - RedePay"
+msgstr "maxiPago! - RedePay"
+
+#: includes/class-wc-maxipago-redepay-gateway.php:49
+msgid "Accept Payments by RedePay using the maxiPago!"
+msgstr "Aceite pagamentos com RedePay usando o maxiPago!"
+
+#: includes/class-wc-maxipago-redepay-gateway.php:49
+msgid "Enable maxiPago! RedePay"
+msgstr "Habilitar o maxiPago! RedePay"
+
+#: includes/class-wc-maxipago-redepay-gateway.php:49
+msgid "RedePay"
+msgstr "RedePay"
+
+#: includes/class-wc-maxipago-redepay-gateway.php:49
+msgid "Pay your order with a RedePay."
+msgstr "Pague seu pedido com RedePay."
+
+
+#: includes/class-wc-maxipago-cc-gateway.php:316
+msgid "Fraud Processor."
+msgstr "Responsável pela anit-fraude."
+
+#: includes/class-wc-maxipago-cc-gateway.php:317
+msgid "Company responsible for processing fraud control."
+msgstr "Empresa responsável por processar análise de fraude."
+
+#: includes/class-wc-maxipago-dc-gateway.php:183
+msgid "Failure Action."
+msgstr "Ação ao Falhar."
+
+#: includes/class-wc-maxipago-dc-gateway.php:183
+msgid "Stop Processing"
+msgstr "Parar Processamento"
+
+#: includes/class-wc-maxipago-dc-gateway.php:183
+msgid "Continue Processing"
+msgstr "Continuar Processamento"
+
+#. woocommerce-maxipago.php:345
+msgid "maxiPago! Split Payment"
+msgstr "maxiPago! Split Payment"
+
+#. woocommerce-maxipago.php:391
+msgid "Only one subscription allowed per cart!"
+msgstr "Apenas uma assinatura permitida por carrinho!"
+
+#. woocommerce-maxipago.php:444
+msgid "Seller(s)"
+msgstr "Lojista(s)"
+
+#. woocommerce-maxipago.php:487
+msgid " and "
+msgstr " e "
+
+#. woocommerce-maxipago.php:489
+msgid "Three or more sellers"
+msgstr "Três ou mais lojistas"
+
+#: includes/class-wc-maxipago-cc-gateway.php:527
+#: includes/admin/views/seller-selector.php:27
+msgid "Seller"
+msgstr "Lojista"
+
+#: includes/class-wc-maxipago-cc-gateway.php:230
+msgid "Percentual"
+msgstr "Percentual"
+
+#: includes/class-wc-maxipago-cc-gateway.php:231
+msgid "Days to Pay"
+msgstr "Dias para Pagamento"
+
+#: includes/class-wc-maxipago-cc-gateway.php:554
+msgid "+ Add seller"
+msgstr "+ Adicionar Lojista"
+
+#: includes/class-wc-maxipago-cc-gateway.php:554
+msgid "Remove selected seller(s)"
+msgstr "Remover lojista(s) selecionado(s)"
+
+#: includes/admin/views/seller-selector.php:20
+msgid "Choose One..."
+msgstr "Escolha um..."
+
+#: includes/admin/views/html-product-seller.php:11
+msgid "Select a seller..."
+msgstr "Selecione um lojista..."
+
+#: includes/admin/views/html-filter-seller.php:11
+msgid "Filter by Seller..."
+msgstr "Filtrar por lojista..."

@@ -40,7 +40,8 @@
 /**
  * Class documentation
  */
-class KLogger {
+class KLogger
+{
     /**
      * Error severity, from low to high. From BSD syslog RFC, secion 4.1.1
      *
@@ -158,7 +159,8 @@ class KLogger {
      *
      * @return KLogger
      */
-    public static function instance($logDirectory = false, $severity = false) {
+    public static function instance($logDirectory = false, $severity = false)
+    {
         if ($severity === false) {
             $severity = self::$_defaultSeverity;
         }
@@ -188,7 +190,8 @@ class KLogger {
      *
      * @return void
      */
-    public function __construct($logDirectory, $severity) {
+    public function __construct($logDirectory, $severity)
+    {
         $logDirectory = rtrim($logDirectory, '\\/');
         if ($severity === self::OFF) {
             return;
@@ -223,7 +226,8 @@ class KLogger {
     /**
      * Class destructor
      */
-    public function __destruct() {
+    public function __destruct()
+    {
         if ($this->_fileHandle) {
             fclose($this->_fileHandle);
         }
@@ -236,7 +240,8 @@ class KLogger {
      *
      * @return void
      */
-    public function logDebug($line, $args = self::NO_ARGUMENTS) {
+    public function logDebug($line, $args = self::NO_ARGUMENTS)
+    {
         $this->log($line, self::DEBUG, $args);
     }
 
@@ -245,7 +250,8 @@ class KLogger {
      *
      * @return string
      */
-    public function getMessage() {
+    public function getMessage()
+    {
         return array_pop($this->_messageQueue);
     }
 
@@ -254,7 +260,8 @@ class KLogger {
      *
      * @return array
      */
-    public function getMessages() {
+    public function getMessages()
+    {
         return $this->_messageQueue;
     }
 
@@ -263,7 +270,8 @@ class KLogger {
      *
      * @return void
      */
-    public function clearMessages() {
+    public function clearMessages()
+    {
         $this->_messageQueue = array();
     }
 
@@ -272,7 +280,8 @@ class KLogger {
      *
      * @param string $dateFormat Valid format string for date()
      */
-    public static function setDateFormat($dateFormat) {
+    public static function setDateFormat($dateFormat)
+    {
         self::$_dateFormat = $dateFormat;
     }
 
@@ -284,7 +293,8 @@ class KLogger {
      *
      * @return void
      */
-    public function logInfo($line, $args = self::NO_ARGUMENTS) {
+    public function logInfo($line, $args = self::NO_ARGUMENTS)
+    {
         $this->log($line, self::INFO, $args);
     }
 
@@ -296,7 +306,8 @@ class KLogger {
      *
      * @return void
      */
-    public function logNotice($line, $args = self::NO_ARGUMENTS) {
+    public function logNotice($line, $args = self::NO_ARGUMENTS)
+    {
         $this->log($line, self::NOTICE, $args);
     }
 
@@ -309,7 +320,8 @@ class KLogger {
      *
      * @return void
      */
-    public function logWarn($line, $args = self::NO_ARGUMENTS) {
+    public function logWarn($line, $args = self::NO_ARGUMENTS)
+    {
         $this->log($line, self::WARN, $args);
     }
 
@@ -321,7 +333,8 @@ class KLogger {
      *
      * @return void
      */
-    public function logError($line, $args = self::NO_ARGUMENTS) {
+    public function logError($line, $args = self::NO_ARGUMENTS)
+    {
         $this->log($line, self::ERR, $args);
     }
 
@@ -334,7 +347,8 @@ class KLogger {
      * @return void
      * @deprecated Use logCrit
      */
-    public function logFatal($line, $args = self::NO_ARGUMENTS) {
+    public function logFatal($line, $args = self::NO_ARGUMENTS)
+    {
         $this->log($line, self::FATAL, $args);
     }
 
@@ -345,7 +359,8 @@ class KLogger {
      *
      * @return void
      */
-    public function logAlert($line, $args = self::NO_ARGUMENTS) {
+    public function logAlert($line, $args = self::NO_ARGUMENTS)
+    {
         $this->log($line, self::ALERT, $args);
     }
 
@@ -356,7 +371,8 @@ class KLogger {
      *
      * @return void
      */
-    public function logCrit($line, $args = self::NO_ARGUMENTS) {
+    public function logCrit($line, $args = self::NO_ARGUMENTS)
+    {
         $this->log($line, self::CRIT, $args);
     }
 
@@ -367,7 +383,8 @@ class KLogger {
      *
      * @return void
      */
-    public function logEmerg($line, $args = self::NO_ARGUMENTS) {
+    public function logEmerg($line, $args = self::NO_ARGUMENTS)
+    {
         $this->log($line, self::EMERG, $args);
     }
 
@@ -377,7 +394,8 @@ class KLogger {
      * @param string $line Text to add to the log
      * @param integer $severity Severity level of log message (use constants)
      */
-    public function log($line, $severity, $args = self::NO_ARGUMENTS) {
+    public function log($line, $severity, $args = self::NO_ARGUMENTS)
+    {
         if ($this->_severityThreshold >= $severity) {
             $status = $this->_getTimeLine($severity);
 
@@ -399,7 +417,8 @@ class KLogger {
      *
      * @return void
      */
-    public function writeFreeFormLine($line) {
+    public function writeFreeFormLine($line)
+    {
         if ($this->_logStatus == self::STATUS_LOG_OPEN
             && $this->_severityThreshold != self::OFF
         ) {
@@ -409,7 +428,8 @@ class KLogger {
         }
     }
 
-    private function _getTimeLine($level) {
+    private function _getTimeLine($level)
+    {
         $time = date(self::$_dateFormat);
 
         switch ($level) {

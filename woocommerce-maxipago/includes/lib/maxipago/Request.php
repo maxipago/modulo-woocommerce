@@ -1,9 +1,12 @@
 <?php
 
-class maxiPago_Request extends maxiPago_XmlBuilder {
+class maxiPago_Request extends maxiPago_XmlBuilder
+{
 
-    protected function sendXml() {
+    protected function sendXml()
+    {
         $this->xml = $this->xml->asXML();
+        $this->xmlRequest = $this->xml;
         if ((!isset($this->xml)) || (!$this->xml)) {
             throw new RuntimeException('[maxiPago Class] INTERNAL ERROR on ' . __METHOD__ . ' method:');
         }
@@ -36,7 +39,8 @@ class maxiPago_Request extends maxiPago_XmlBuilder {
         }
     }
 
-    private function parseXml($array = array(), $c = 0) {
+    private function parseXml($array = array(), $c = 0)
+    {
         $xmlResponse = new SimpleXMLElement($this->xmlResponse);
         if (is_object(maxiPago_RequestBase::$logger)) {
             self::$logger->logInfo('XML Response received');
@@ -89,7 +93,8 @@ class maxiPago_Request extends maxiPago_XmlBuilder {
         return $array;
     }
 
-    private function printDebug($param, $_mpInfo = '') {
+    private function printDebug($param, $_mpInfo = '')
+    {
         $this->debugger("Target URL: " . $this->endpoint);
         $this->debugger("XML Request: " . htmlentities(mb_convert_encoding($this->xml, "UTF-8")));
         if ($param["http_code"] == "200") {
@@ -106,7 +111,8 @@ class maxiPago_Request extends maxiPago_XmlBuilder {
         }
     }
 
-    private function debugger($string) {
+    private function debugger($string)
+    {
         $_d = date('Y-m-d H:m:s', substr(microtime(), "11", "10")) . ":" . substr(microtime(), "2", "5");
         echo("<br>" . str_repeat("-", 20) . "<br>[" . $_d . "] " . $string . "<br>" . str_repeat("-", 20) . "<br>");
     }

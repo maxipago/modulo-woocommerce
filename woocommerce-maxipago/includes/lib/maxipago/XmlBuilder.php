@@ -1,15 +1,20 @@
 <?php
 
-class maxiPago_XmlBuilder extends maxiPago_RequestBase {
+class maxiPago_XmlBuilder extends maxiPago_RequestBase
+{
 
-    public $xml;
+    protected $xml;
+    public $xmlRequest;
+    public $xmlRespose;
 
-    public function __construct($array) {
+    public function __construct($array)
+    {
         $this->merchantId = $array["merchantId"];
         $this->merchantKey = $array["merchantKey"];
     }
 
-    protected function setRequest() {
+    protected function setRequest()
+    {
         $this->xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?>' . $this->tag);
         if ($this->tag == "<transaction-request></transaction-request>") {
             $this->xml->addChild("version", $this->version);
@@ -19,7 +24,8 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
         $this->xml->verification->addChild("merchantKey", $this->merchantKey);
     }
 
-    protected function setOrder() {
+    protected function setOrder()
+    {
         $type = $this->type;
         $this->xml->addChild("order");
         $this->xml->order->addChild($type);
@@ -35,81 +41,303 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
         if (strlen($this->fraudCheck) > 0) {
             $this->xml->order->$type->addChild("fraudCheck", strtoupper($this->fraudCheck));
         }
-        $ipAddress = '127.0.0.1';
         if (strlen($this->ipAddress) > 0) {
-            if (filter_var($this->ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
-                $ipAddress = strtoupper($this->ipAddress);
-            }
+            $this->xml->order->$type->addChild("ipAddress", strtoupper($this->ipAddress));
         }
-        $this->xml->order->$type->addChild("ipAddress", $ipAddress);
-
+        if (strlen($this->invoiceNumber) > 0) {
+            $this->xml->order->$type->addChild("invoiceNumber", strtoupper($this->invoiceNumber));
+        }
+        if (strlen($this->userAgent) > 0) {
+            $this->xml->order->$type->addChild("userAgent", strtoupper($this->userAgent));
+        }
+        if (isset($this->splitPaymentType) && strlen($this->splitPaymentType) > 0) {
+            $this->xml->order->$type->addChild("splitPaymentType", strtolower($this->splitPaymentType));
+        }
         $this->setAddress();
     }
 
-    protected function setAddress() {
+    protected function setPaymentInfo()
+    {
+        $this->xml->request->addChild("paymentInfo");
+
+        $this->setCreditCardInfo();
+
+        if (strlen($this->chargeTotal) > 0) {
+            $this->xml->request->paymentInfo->addChild("chargeTotal", $this->chargeTotal);
+        }
+    }
+
+    protected function setCreditCardInfo()
+    {
+        $this->xml->request->paymentInfo->addChild("cardInfo");
+
+        if (strlen($this->creditCardNumber) > 0) {
+            if (strlen($this->creditCardNumber) > 0) {
+                $this->xml->request->paymentInfo->cardInfo->addChild("creditCardNumber", $this->creditCardNumber);
+            }
+            if (strlen($this->expirationMonth) > 0) {
+                $this->xml->request->paymentInfo->cardInfo->addChild("expirationMonth", $this->expirationMonth);
+            }
+            if (strlen($this->expirationYear) > 0) {
+                $this->xml->request->paymentInfo->cardInfo->addChild("expirationYear", $this->expirationYear);
+            }
+            if (strlen($this->cvvNumber) > 0) {
+                $this->xml->request->paymentInfo->cardInfo->addChild("cvvNumber", $this->cvvNumber);
+            }
+        } else if ((strlen($this->token) > 0) && (strlen($this->customerId) > 0)) {
+            $this->xml->request->paymentInfo->cardInfo->addChild("onFile");
+            if (strlen($this->customerId) > 0) {
+                $this->xml->request->paymentInfo->cardInfo->onFile->addChild("customerId", $this->customerId);
+            }
+            if (strlen($this->token) > 0) {
+                $this->xml->request->paymentInfo->cardInfo->onFile->addChild("token", $this->token);
+            }
+            if (strlen($this->cvvNumber) > 0) {
+                $this->xml->request->paymentInfo->cardInfo->onFile->addChild("cvvNumber", $this->cvvNumber);
+            }
+        } else {
+            throw new InvalidArgumentException('[maxiPago Class] Invalid payment data for Credit Card transaction.');
+        }
+    }
+
+    protected function setAddress()
+    {
         $type = $this->type;
         switch ($type) {
             case "auth":
             case "sale":
-            case "boleto":
                 $this->xml->order->$type->addChild("billing");
-                if (($type == "boleto") && (strlen($this->bname) == 0)) {
-                    throw new InvalidArgumentException("[maxiPago Class] Billing name is mandatory for Boleto transactions.");
+                if (strlen($this->billingId) > 0) {
+                    $this->xml->order->$type->billing->addChild("id", $this->billingId);
                 }
-                if (strlen($this->bname) > 0) {
-                    $this->xml->order->$type->billing->addChild("name", $this->bname);
+                if (strlen($this->billingName) > 0) {
+                    $this->xml->order->$type->billing->addChild("name", $this->billingName);
                 }
-                if (strlen($this->baddress) > 0) {
-                    $this->xml->order->$type->billing->addChild("address", $this->baddress);
+                if (strlen($this->billingAddress) > 0) {
+                    $this->xml->order->$type->billing->addChild("address", $this->billingAddress);
                 }
-                if (strlen($this->baddress2) > 0) {
-                    $this->xml->order->$type->billing->addChild("address2", $this->baddress2);
+                if (strlen($this->billingAddress2) > 0) {
+                    $this->xml->order->$type->billing->addChild("address2", $this->billingAddress2);
                 }
-                if (strlen($this->bcity) > 0) {
-                    $this->xml->order->$type->billing->addChild("city", $this->bcity);
+                if (strlen($this->billingDistrict) > 0) {
+                    $this->xml->order->$type->billing->addChild("district", $this->billingDistrict);
                 }
-                if (strlen($this->bstate) > 0) {
-                    $this->xml->order->$type->billing->addChild("state", $this->bstate);
+                if (strlen($this->billingCity) > 0) {
+                    $this->xml->order->$type->billing->addChild("city", $this->billingCity);
                 }
-                if (strlen($this->bpostalcode) > 0) {
-                    $this->xml->order->$type->billing->addChild("postalcode", $this->bpostalcode);
+                if (strlen($this->billingState) > 0) {
+                    $this->xml->order->$type->billing->addChild("state", $this->billingState);
                 }
-                if (strlen($this->bcountry) > 0) {
-                    $this->xml->order->$type->billing->addChild("country", $this->bcountry);
+                if (strlen($this->billingPhone) > 0) {
+                    $this->xml->order->$type->billing->addChild("phone", $this->billingPhone);
                 }
-                if (strlen($this->bphone) > 0) {
-                    $this->xml->order->$type->billing->addChild("phone", $this->bphone);
+                if (strlen($this->billingPostalCode) > 0) {
+                    $this->xml->order->$type->billing->addChild("postalcode", $this->billingPostalCode);
                 }
-                if (strlen($this->bemail) > 0) {
-                    $this->xml->order->$type->billing->addChild("email", $this->bemail);
+                if (strlen($this->billingCountry) > 0) {
+                    $this->xml->order->$type->billing->addChild("country", $this->billingCountry);
+                }
+                if (strlen($this->billingEmail) > 0) {
+                    $this->xml->order->$type->billing->addChild("email", $this->billingEmail);
+                }
+                if (strlen($this->billingCompanyName) > 0) {
+                    $this->xml->order->$type->billing->addChild("companyName", $this->billingCompanyName);
+                }
+                if (strlen($this->billingType) > 0) {
+                    $this->xml->order->$type->billing->addChild("type", $this->billingType);
+                }
+                if (strlen($this->billingGender) > 0) {
+                    $this->xml->order->$type->billing->addChild("gender", $this->billingGender);
+                }
+                if (strlen($this->billingBirthDate) > 0) {
+                    $this->xml->order->$type->billing->addChild("birthDate", $this->billingBirthDate);
+                }
+                $this->setBillingPhone();
+                $this->setBillingDocuments();
+                $this->xml->order->$type->addChild("shipping");
+                if (strlen($this->shippingId) > 0) {
+                    $this->xml->order->$type->shipping->addChild("id", $this->shippingId);
+                }
+                if (strlen($this->shippingName) > 0) {
+                    $this->xml->order->$type->shipping->addChild("name", $this->shippingName);
+                }
+                if (strlen($this->shippingAddress) > 0) {
+                    $this->xml->order->$type->shipping->addChild("address", $this->shippingAddress);
+                }
+                if (strlen($this->shippingAddress2) > 0) {
+                    $this->xml->order->$type->shipping->addChild("address2", $this->shippingAddress2);
+                }
+                if (strlen($this->shippingDistrict) > 0) {
+                    $this->xml->order->$type->shipping->addChild("district", $this->shippingDistrict);
+                }
+                if (strlen($this->shippingCity) > 0) {
+                    $this->xml->order->$type->shipping->addChild("city", $this->shippingCity);
+                }
+                if (strlen($this->shippingState) > 0) {
+                    $this->xml->order->$type->shipping->addChild("state", $this->shippingState);
+                }
+                if (strlen($this->shippingPostalCode) > 0) {
+                    $this->xml->order->$type->shipping->addChild("postalcode", $this->shippingPostalCode);
+                }
+                if (strlen($this->shippingCountry) > 0) {
+                    $this->xml->order->$type->shipping->addChild("country", $this->shippingCountry);
+                }
+                if (strlen($this->shippingPhone) > 0) {
+                    $this->xml->order->$type->shipping->addChild("phone", $this->shippingPhone);
+                }
+                if (strlen($this->shippingEmail) > 0) {
+                    $this->xml->order->$type->shipping->addChild("email", $this->shippingEmail);
+                }
+                if (strlen($this->shippingType) > 0) {
+                    $this->xml->order->$type->shipping->addChild("type", $this->shippingType);
+                }
+                if (strlen($this->shippingGender) > 0) {
+                    $this->xml->order->$type->shipping->addChild("gender", $this->shippingGender);
+                }
+                if (strlen($this->shippingBirthDate) > 0) {
+                    $this->xml->order->$type->shipping->addChild("birthDate", $this->shippingBirthDate);
+                }
+                $this->setShippingPhone();
+                $this->setShippingDocuments();
+                break;
+            case "modify-recurring":
+                $this->xml->request->addChild("billingInfo");
+                if (strlen($this->billingName) > 0) {
+                    $this->xml->request->billingInfo->addChild("name", $this->billingName);
+                }
+                if (strlen($this->billingAddress) > 0) {
+                    $this->xml->request->billingInfo->addChild("address1", $this->billingAddress);
+                }
+                if (strlen($this->billingAddress2) > 0) {
+                    $this->xml->request->billingInfo->addChild("address2", $this->billingAddress2);
+                }
+                if (strlen($this->billingCity) > 0) {
+                    $this->xml->request->billingInfo->addChild("city", $this->billingCity);
+                }
+                if (strlen($this->billingPostalCode) > 0) {
+                    $this->xml->request->billingInfo->addChild("zip", $this->billingPostalCode);
+                }
+                if (strlen($this->billingCountry) > 0) {
+                    $this->xml->request->billingInfo->addChild("country", $this->billingCountry);
+                }
+                if (strlen($this->billingEmail) > 0) {
+                    $this->xml->request->billingInfo->addChild("email", $this->billingEmail);
+                }
+                if (strlen($this->billingPhone) > 0) {
+                    $this->xml->request->billingInfo->addChild("phone", $this->billingPhone);
+                }
+                $this->xml->request->addChild("shippingInfo");
+                if (strlen($this->shippingName) > 0) {
+                    $this->xml->request->shippingInfo->addChild("name", $this->shippingName);
+                }
+                if (strlen($this->shippingAddress) > 0) {
+                    $this->xml->request->shippingInfo->addChild("address1", $this->shippingAddress);
+                }
+                if (strlen($this->shippingAddress2) > 0) {
+                    $this->xml->request->shippingInfo->addChild("address2", $this->shippingAddress2);
+                }
+                if (strlen($this->shippingCity) > 0) {
+                    $this->xml->request->shippingInfo->addChild("city", $this->shippingCity);
+                }
+                if (strlen($this->shippingPostalCode) > 0) {
+                    $this->xml->request->shippingInfo->addChild("zip", $this->shippingPostalCode);
+                }
+                if (strlen($this->shippingCountry) > 0) {
+                    $this->xml->request->shippingInfo->addChild("country", $this->shippingCountry);
+                }
+                if (strlen($this->shippingEmail) > 0) {
+                    $this->xml->request->shippingInfo->addChild("email", $this->shippingEmail);
+                }
+                if (strlen($this->shippingPhone) > 0) {
+                    $this->xml->request->shippingInfo->addChild("phone", $this->shippingPhone);
+                }
+                break;
+            case "recurringPayment":
+                $this->xml->order->$type->addChild("billing");
+                if (strlen($this->billingId) > 0) {
+                    $this->xml->order->$type->billing->addChild("id", $this->billingId);
+                }
+                if (strlen($this->billingName) > 0) {
+                    $this->xml->order->$type->billing->addChild("name", $this->billingName);
+                }
+                if (strlen($this->billingAddress) > 0) {
+                    $this->xml->order->$type->billing->addChild("address", $this->billingAddress);
+                }
+                if (strlen($this->billingAddress2) > 0) {
+                    $this->xml->order->$type->billing->addChild("address2", $this->billingAddress2);
+                }
+                if (strlen($this->billingDistrict) > 0) {
+                    $this->xml->order->$type->billing->addChild("district", $this->billingDistrict);
+                }
+                if (strlen($this->billingCity) > 0) {
+                    $this->xml->order->$type->billing->addChild("city", $this->billingCity);
+                }
+                if (strlen($this->billingState) > 0) {
+                    $this->xml->order->$type->billing->addChild("state", $this->billingState);
+                }
+                if (strlen($this->billingPostalCode) > 0) {
+                    $this->xml->order->$type->billing->addChild("postalcode", $this->billingPostalCode);
+                }
+                if (strlen($this->billingCountry) > 0) {
+                    $this->xml->order->$type->billing->addChild("country", $this->billingCountry);
+                }
+                if (strlen($this->billingEmail) > 0) {
+                    $this->xml->order->$type->billing->addChild("email", $this->billingEmail);
+                }
+                if (strlen($this->billingCompanyName) > 0) {
+                    $this->xml->order->$type->billing->addChild("companyName", $this->billingCompanyName);
+                }
+                if (strlen($this->billingType) > 0) {
+                    $this->xml->order->$type->billing->addChild("type", $this->billingType);
+                }
+                if (strlen($this->billingGender) > 0) {
+                    $this->xml->order->$type->billing->addChild("gender", $this->billingGender);
+                }
+                if (strlen($this->billingBirthDate) > 0) {
+                    $this->xml->order->$type->billing->addChild("birthDate", $this->billingBirthDate);
                 }
                 $this->xml->order->$type->addChild("shipping");
-                if (strlen($this->sname) > 0) {
-                    $this->xml->order->$type->shipping->addChild("name", $this->sname);
+                if (strlen($this->shippingId) > 0) {
+                    $this->xml->order->$type->shipping->addChild("id", $this->shippingId);
                 }
-                if (strlen($this->saddress) > 0) {
-                    $this->xml->order->$type->shipping->addChild("address", $this->saddress);
+                if (strlen($this->shippingName) > 0) {
+                    $this->xml->order->$type->shipping->addChild("name", $this->shippingName);
                 }
-                if (strlen($this->saddress2) > 0) {
-                    $this->xml->order->$type->shipping->addChild("address2", $this->saddress2);
+                if (strlen($this->shippingAddress) > 0) {
+                    $this->xml->order->$type->shipping->addChild("address", $this->shippingAddress);
                 }
-                if (strlen($this->scity) > 0) {
-                    $this->xml->order->$type->shipping->addChild("city", $this->scity);
+                if (strlen($this->shippingAddress2) > 0) {
+                    $this->xml->order->$type->shipping->addChild("address2", $this->shippingAddress2);
                 }
-                if (strlen($this->sstate) > 0) {
-                    $this->xml->order->$type->shipping->addChild("state", $this->sstate);
+                if (strlen($this->shippingDistrict) > 0) {
+                    $this->xml->order->$type->shipping->addChild("district", $this->shippingDistrict);
                 }
-                if (strlen($this->spostalcode) > 0) {
-                    $this->xml->order->$type->shipping->addChild("postalcode", $this->spostalcode);
+                if (strlen($this->shippingCity) > 0) {
+                    $this->xml->order->$type->shipping->addChild("city", $this->shippingCity);
                 }
-                if (strlen($this->scountry) > 0) {
-                    $this->xml->order->$type->shipping->addChild("country", $this->scountry);
+                if (strlen($this->shippingState) > 0) {
+                    $this->xml->order->$type->shipping->addChild("state", $this->shippingState);
                 }
-                if (strlen($this->sphone) > 0) {
-                    $this->xml->order->$type->shipping->addChild("phone", $this->sphone);
+                if (strlen($this->shippingPostalCode) > 0) {
+                    $this->xml->order->$type->shipping->addChild("postalcode", $this->shippingPostalCode);
                 }
-                if (strlen($this->semail) > 0) {
-                    $this->xml->order->$type->shipping->addChild("email", $this->semail);
+                if (strlen($this->shippingCountry) > 0) {
+                    $this->xml->order->$type->shipping->addChild("country", $this->shippingCountry);
+                }
+                if (strlen($this->shippingPhone) > 0) {
+                    $this->xml->order->$type->shipping->addChild("phone", $this->shippingPhone);
+                }
+                if (strlen($this->shippingEmail) > 0) {
+                    $this->xml->order->$type->shipping->addChild("email", $this->shippingEmail);
+                }
+                if (strlen($this->shippingType) > 0) {
+                    $this->xml->order->$type->shipping->addChild("type", $this->shippingType);
+                }
+                if (strlen($this->shippingGender) > 0) {
+                    $this->xml->order->$type->shipping->addChild("gender", $this->shippingGender);
+                }
+                if (strlen($this->shippingBirthDate) > 0) {
+                    $this->xml->order->$type->shipping->addChild("birthDate", $this->shippingBirthDate);
                 }
                 break;
             case "add-consumer":
@@ -158,12 +386,221 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
                 $this->xml->request->addChild("billingPhone", $this->billingPhone);
                 $this->xml->request->addChild("billingEmail", $this->billingEmail);
                 break;
+            case "add-payment-order":
+
+                $this->xml->request->addChild("billing");
+                if (strlen($this->firstName) > 0) {
+                    $this->xml->request->billing->addChild("firstName", $this->firstName);
+                }
+                if (strlen($this->lastName) > 0) {
+                    $this->xml->request->billing->addChild("lastName", $this->lastName);
+                }
+                if (strlen($this->address1) > 0) {
+                    $this->xml->request->billing->addChild("address", $this->address1);
+                }
+                if (strlen($this->address2) > 0) {
+                    $this->xml->request->billing->addChild("address2", $this->address2);
+                }
+                if (strlen($this->city) > 0) {
+                    $this->xml->request->billing->addChild("city", $this->city);
+                }
+                if (strlen($this->state) > 0) {
+                    $this->xml->request->billing->addChild("state", $this->state);
+                }
+                if (strlen($this->zip) > 0) {
+                    $this->xml->request->billing->addChild("postalcode", $this->zip);
+                }
+                if (strlen($this->country) > 0) {
+                    $this->xml->request->billing->addChild("country", $this->country);
+                }
+                if (strlen($this->phone) > 0) {
+                    $this->xml->request->billing->addChild("phone", $this->phone);
+                }
+                if (strlen($this->email) > 0) {
+                    $this->xml->request->billing->addChild("email", $this->email);
+                }
+                if (strlen($this->dob) > 0) {
+                    $this->xml->request->billing->addChild("dob", $this->dob);
+                }
+                if (strlen($this->sex) > 0) {
+                    $this->xml->request->billing->addChild("sex", strtoupper($this->sex));
+                }
+                if (strlen($this->customerIdExt) > 0) {
+                    $this->xml->request->billing->addChild("customerIdExt", strtoupper($this->customerIdExt));
+                }
+                break;
             default:
                 break;
         }
     }
 
-    protected function setAuthOrSale() {
+    protected function setBillingPhone()
+    {
+        $type = $this->type;
+        $this->xml->order->$type->billing->addChild("phones");
+        $this->xml->order->$type->billing->phones->addChild("phone");
+
+        if (strlen($this->billingPhoneType) > 0) {
+            $this->xml->order->$type->billing->phones->phone->addChild("phoneType", $this->billingPhoneType);
+        }
+        if (strlen($this->billingPhoneCountryCode) > 0) {
+            $this->xml->order->$type->billing->phones->phone->addChild("phoneCountryCode", $this->billingPhoneCountryCode);
+        }
+        if (strlen($this->billingPhoneAreaCode) > 0) {
+            $this->xml->order->$type->billing->phones->phone->addChild("phoneAreaCode", $this->billingPhoneAreaCode);
+        }
+        if (strlen($this->billingPhoneNumber) > 0) {
+            $this->xml->order->$type->billing->phones->phone->addChild("phoneNumber", $this->billingPhoneNumber);
+        }
+        if (strlen($this->billingPhoneExtension) > 0) {
+            $this->xml->order->$type->billing->phones->phone->addChild("phoneExtension", $this->billingPhoneExtension);
+        }
+    }
+
+    protected function setBillingDocuments()
+    {
+        $type = $this->type;
+        $this->xml->order->$type->billing->addChild("documents");
+        $this->xml->order->$type->billing->documents->addChild("document");
+        if (strlen($this->billingDocumentType) > 0) {
+            $this->xml->order->$type->billing->documents->document->addChild("documentType", $this->billingDocumentType);
+        }
+        if (strlen($this->billingDocumentValue) > 0) {
+            $this->xml->order->$type->billing->documents->document->addChild("documentValue", $this->billingDocumentValue);
+        }
+
+    }
+
+    protected function setShippingPhone()
+    {
+        $type = $this->type;
+        $this->xml->order->$type->shipping->addChild("phones");
+        $this->xml->order->$type->shipping->phones->addChild("phone");
+
+        if (strlen($this->shippingPhoneType) > 0) {
+            $this->xml->order->$type->shipping->phones->phone->addChild("phoneType", $this->shippingPhoneType);
+        }
+        if (strlen($this->shippingPhoneCountryCode) > 0) {
+            $this->xml->order->$type->shipping->phones->phone->addChild("phoneCountryCode", $this->shippingPhoneCountryCode);
+        }
+        if (strlen($this->shippingPhoneAreaCode) > 0) {
+            $this->xml->order->$type->shipping->phones->phone->addChild("phoneAreaCode", $this->shippingPhoneAreaCode);
+        }
+        if (strlen($this->shippingPhoneNumber) > 0) {
+            $this->xml->order->$type->shipping->phones->phone->addChild("phoneNumber", $this->shippingPhoneNumber);
+        }
+        if (strlen($this->shippingPhoneExtension) > 0) {
+            $this->xml->order->$type->shipping->phones->phone->addChild("phoneExtension", $this->shippingPhoneExtension);
+        }
+    }
+
+    protected function setShippingDocuments()
+    {
+        $type = $this->type;
+        $this->xml->order->$type->shipping->addChild("documents");
+        $this->xml->order->$type->shipping->documents->addChild("document");
+        if (strlen($this->shippingDocumentType) > 0) {
+            $this->xml->order->$type->shipping->documents->document->addChild("documentType", $this->shippingDocumentType);
+        }
+        if (strlen($this->shippingDocumentValue) > 0) {
+            $this->xml->order->$type->shipping->documents->document->addChild("documentValue", $this->shippingDocumentValue);
+        }
+
+    }
+
+    protected function setItens()
+    {
+        $type = $this->type;
+
+        if (strlen($this->itemCount) > 0) {
+            $this->xml->order->$type->addChild("itemList");
+            $this->xml->order->$type->itemList->addAttribute("itemCount", $this->itemCount);
+
+            $i = 1;
+            $itemIndex = 'itemIndex' . $i;
+            while (property_exists($this, $itemIndex) && strlen($this->$itemIndex) > 0) {
+
+                $item = $this->xml->order->$type->itemList->addChild("item");
+                $item->addChild("itemIndex", $this->$itemIndex);
+
+                $itemProductCode = 'itemProductCode' . $i;
+                if (strlen($this->$itemProductCode) > 0) {
+                    $item->addChild("itemProductCode", $this->$itemProductCode);
+                }
+
+                $itemDescription = 'itemDescription' . $i;
+                if (strlen($this->$itemDescription) > 0) {
+                    $item->addChild("itemDescription", $this->$itemDescription);
+                }
+
+                $itemQuantity = 'itemQuantity' . $i;
+                if (strlen($this->$itemQuantity) > 0) {
+                    $item->addChild("itemQuantity", $this->$itemQuantity);
+                }
+
+                $itemTotalAmount = 'itemTotalAmount' . $i;
+                if (strlen($this->$itemTotalAmount) > 0) {
+                    $item->addChild("itemTotalAmount", $this->$itemTotalAmount);
+                }
+
+                $itemUnitCost = 'itemUnitCost' . $i;
+                if (strlen($this->$itemUnitCost) > 0) {
+                    $item->addChild("itemUnitCost", $this->$itemUnitCost);
+                }
+
+                $sellerId = 'sellerId' . $i;
+                if(isset($this->$sellerId) && strlen($this->$sellerId) > 0) {
+                    $item->addChild("sellerId", $this->$sellerId);
+                }
+
+                $sellerMDR = 'sellerMDR' . $i;
+                if(isset($this->$sellerMDR) && strlen($this->$sellerMDR) > 0) {
+                    $item->addChild("sellerMDR", $this->$sellerMDR);
+                }
+
+                $sellerDaysToPay = 'sellerDaysToPay' . $i;
+                if(isset($this->$sellerDaysToPay) && strlen($this->$sellerDaysToPay) > 0) {
+                    $item->addChild("sellerDaysToPay", $this->$sellerDaysToPay);
+                }
+
+                $sellerInstallments = 'sellerInstallments' . $i;
+                if(isset($this->$sellerInstallments) && strlen($this->$sellerInstallments) > 0) {
+                    $item->addChild("sellerInstallments", $this->$sellerInstallments);
+                }
+
+                $i++;
+                $itemIndex = 'itemIndex' . $i;
+
+                //If something goes wrong. Break it
+                if ($i == 100)
+                    break;
+            }
+        }
+    }
+
+    protected function setFraudDetails()
+    {
+        $type = $this->type;
+        $this->xml->order->$type->addChild("fraudDetails");
+        if (strlen($this->fraudProcessorID) > 0) {
+            $this->xml->order->$type->fraudDetails->addChild("fraudProcessorID", $this->fraudProcessorID);
+        }
+        if (strlen($this->captureOnLowRisk) > 0) {
+            $this->xml->order->$type->fraudDetails->addChild("captureOnLowRisk", $this->captureOnLowRisk);
+        }
+        if (strlen($this->voidOnHighRisk) > 0) {
+            $this->xml->order->$type->fraudDetails->addChild("voidOnHighRisk", $this->voidOnHighRisk);
+        }
+        if (strlen($this->websiteId) > 0) {
+            $this->xml->order->$type->fraudDetails->addChild("websiteId", $this->websiteId);
+        }
+        if (strlen($this->fraudToken) > 0) {
+            $this->xml->order->$type->fraudDetails->addChild("fraudToken", $this->fraudToken);
+        }
+    }
+
+    protected function setAuthOrSale()
+    {
         $this->setRequest();
         $this->setOrder();
         $type = $this->type;
@@ -181,9 +618,6 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
             $this->xml->order->$type->transactionDetail->payType->addChild("onFile");
             $this->xml->order->$type->transactionDetail->payType->onFile->addChild("token", $this->token);
             $this->xml->order->$type->transactionDetail->payType->onFile->addChild("customerId", $this->customerId);
-            if (strlen($this->cvvNumber) > 0) {
-                $this->xml->order->$type->transactionDetail->payType->onFile->addChild("cvvNumber", $this->cvvNumber);
-            }
         } else {
             throw new InvalidArgumentException('[maxiPago Class] Invalid payment data for Credit Card transaction.');
         }
@@ -193,7 +627,8 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
         }
     }
 
-    protected function setBoleto() {
+    protected function setBoleto()
+    {
         $this->setRequest();
         $this->setOrder();
         $type = $this->type;
@@ -208,7 +643,108 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
         $this->setPayment();
     }
 
-    protected function setOnlineDebit() {
+    protected function setRedepay()
+    {
+        $this->setRequest();
+        $this->setOrder();
+        $type = $this->type;
+        $this->xml->order->$type->addChild("transactionDetail");
+        $this->xml->order->$type->transactionDetail->addChild("payType");
+        $this->xml->order->$type->transactionDetail->payType->addChild("eWallet");
+        $this->xml->order->$type->transactionDetail->payType->eWallet->addChild("parametersURL", $this->parametersURL);
+        $this->setItens();
+        $this->setPayment();
+    }
+
+    protected function setAutentication()
+    {
+        $type = $this->type;
+        $this->xml->order->$type->addChild("authentication");
+        if (strlen($this->mpiProcessorID) > 0) {
+            $this->xml->order->$type->authentication->addChild("mpiProcessorID", $this->mpiProcessorID);
+        }
+        if (strlen($this->onFailure) > 0) {
+            $this->xml->order->$type->authentication->addChild("onFailure", $this->onFailure);
+        }
+    }
+
+    protected function setAuthCreditCard3DS()
+    {
+        $this->setRequest();
+        $this->setOrder();
+        $this->setAutentication();
+        $type = $this->type;
+        $this->xml->order->$type->addChild("transactionDetail");
+        $this->xml->order->$type->transactionDetail->addChild("payType");
+        $this->xml->order->$type->transactionDetail->payType->addChild("creditCard");
+        if (strlen($this->number) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->creditCard->addChild("number", $this->number);
+        }
+        if (strlen($this->expMonth) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->creditCard->addChild("expMonth", $this->expMonth);
+        }
+        if (strlen($this->expYear) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->creditCard->addChild("expYear", $this->expYear);
+        }
+        if (strlen($this->cvvNumber) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->creditCard->addChild("cvvNumber", $this->cvvNumber);
+        }
+        $this->setPayment();
+        $this->setItens();
+    }
+
+    protected function setSaleCreditCard3DS()
+    {
+        $this->setRequest();
+        $this->setOrder();
+        $this->setAutentication();
+        $type = $this->type;
+        $this->xml->order->$type->addChild("transactionDetail");
+        $this->xml->order->$type->transactionDetail->addChild("payType");
+        $this->xml->order->$type->transactionDetail->payType->addChild("creditCard");
+        if (strlen($this->number) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->creditCard->addChild("number", $this->number);
+        }
+        if (strlen($this->expMonth) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->creditCard->addChild("expMonth", $this->expMonth);
+        }
+        if (strlen($this->expYear) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->creditCard->addChild("expYear", $this->expYear);
+        }
+        if (strlen($this->cvvNumber) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->creditCard->addChild("cvvNumber", $this->cvvNumber);
+        }
+        $this->setPayment();
+        $this->setItens();
+    }
+
+    protected function setSaleDebitCard3DS()
+    {
+        $this->setRequest();
+        $this->setOrder();
+        $this->setAutentication();
+        $type = $this->type;
+        $this->xml->order->$type->addChild("transactionDetail");
+        $this->xml->order->$type->transactionDetail->addChild("payType");
+        $this->xml->order->$type->transactionDetail->payType->addChild("debitCard");
+        if (strlen($this->number) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->debitCard->addChild("number", $this->number);
+        }
+        if (strlen($this->expMonth) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->debitCard->addChild("expMonth", $this->expMonth);
+        }
+        if (strlen($this->expYear) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->debitCard->addChild("expYear", $this->expYear);
+        }
+        if (strlen($this->cvvNumber) > 0) {
+            $this->xml->order->$type->transactionDetail->payType->debitCard->addChild("cvvNumber", $this->cvvNumber);
+        }
+        $this->setPayment();
+        $this->setItens();
+    }
+
+    protected function setOnlineDebit()
+    {
         $this->setRequest();
         $this->setOrder();
         $type = $this->type;
@@ -219,10 +755,14 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
         $this->setPayment();
     }
 
-    protected function setPayment() {
+    protected function setPayment()
+    {
         $type = $this->type;
         $this->xml->order->$type->addChild("payment");
         $this->xml->order->$type->payment->addChild("chargeTotal", $this->chargeTotal);
+        if (strlen($this->shippingTotal) > 0) {
+            $this->xml->order->$type->payment->addChild("shippingTotal", $this->shippingTotal);
+        }
         if (strlen($this->softDescriptor) > 0) {
             $this->xml->order->$type->payment->addChild("softDescriptor", $this->softDescriptor);
         }
@@ -246,7 +786,8 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
         }
     }
 
-    protected function setSaveOnFile() {
+    protected function setSaveOnFile()
+    {
         $type = $this->type;
         $this->xml->order->$type->addChild("saveOnFile");
         $this->xml->order->$type->saveOnFile->addChild("customerToken", $this->customerId);
@@ -264,7 +805,8 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
         }
     }
 
-    protected function setCaptureOrReturn() {
+    protected function setCaptureOrReturn()
+    {
         $this->setRequest();
         $this->setOrder();
         $type = $this->type;
@@ -272,30 +814,95 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
         $this->setPayment();
     }
 
-    protected function setVoid() {
+    protected function setVoid()
+    {
         $this->setRequest();
         $this->setOrder();
         $type = $this->type;
         $this->xml->order->$type->addChild("transactionID", $this->transactionID);
     }
 
-    protected function setRecurring() {
+    protected function setRecurring()
+    {
         $this->setAuthOrSale();
         $type = $this->type;
         $this->xml->order->$type->addChild("recurring");
         $this->xml->order->$type->recurring->addChild("action", "new");
-        $this->xml->order->$type->recurring->addChild("startDate", $this->startDate);
-        $this->xml->order->$type->recurring->addChild("frequency", $this->frequency);
-        $this->xml->order->$type->recurring->addChild("installments", $this->installments);
-        $this->xml->order->$type->recurring->addChild("period", $this->period);
-        $this->xml->order->$type->recurring->addChild("failureThreshold", $this->failureThreshold);
+        if (strlen($this->startDate) > 0) {
+            $this->xml->order->$type->recurring->addChild("startDate", $this->startDate);
+        }
+        if (strlen($this->frequency) > 0) {
+            $this->xml->order->$type->recurring->addChild("frequency", $this->frequency);
+        }
+        if (strlen($this->period) > 0) {
+            $this->xml->order->$type->recurring->addChild("period", $this->period);
+        }
+        if (strlen($this->installments) > 0) {
+            $this->xml->order->$type->recurring->addChild("installments", $this->installments);
+        }
+        if (strlen($this->failureThreshold) > 0) {
+            $this->xml->order->$type->recurring->addChild("failureThreshold", $this->failureThreshold);
+        }
+        if (strlen($this->firstAmount) > 0) {
+            $this->xml->order->$type->recurring->addChild("firstAmount", $this->firstAmount);
+        }
+        if (strlen($this->lastAmount) > 0) {
+            $this->xml->order->$type->recurring->addChild("lastAmount", $this->lastAmount);
+        }
+        if (strlen($this->lastDate) > 0) {
+            $this->xml->order->$type->recurring->addChild("lastDate", $this->lastDate);
+        }
     }
 
-    protected function setCommand() {
+    protected function setModifyRecurring()
+    {
+        $this->setRequest();
+        $this->setCommand();
+        $this->xml->addChild("request");
+        $this->setPaymentInfo();
+        $this->setAddress();
+        $this->xml->request->addChild("recurring");
+        if (strlen($this->processorID) > 0) {
+            $this->xml->request->recurring->addChild("processorID", $this->processorID);
+        }
+        if (strlen($this->action) > 0) {
+            $this->xml->request->recurring->addChild("action", $this->action);
+        } else {
+            $this->xml->request->recurring->addChild("action", "enable");
+        }
+        if (strlen($this->startDate) > 0) {
+            $this->xml->request->recurring->addChild("startDate", $this->startDate);
+        }
+        if (strlen($this->frequency) > 0) {
+            $this->xml->request->recurring->addChild("frequency", $this->frequency);
+        }
+        if (strlen($this->period) > 0) {
+            $this->xml->request->recurring->addChild("period", $this->period);
+        }
+        if (strlen($this->installments) > 0) {
+            $this->xml->request->recurring->addChild("installments", $this->installments);
+        }
+        if (strlen($this->failureThreshold) > 0) {
+            $this->xml->request->recurring->addChild("failureThreshold", $this->failureThreshold);
+        }
+        if (strlen($this->firstAmount) > 0) {
+            $this->xml->request->recurring->addChild("firstAmount", $this->firstAmount);
+        }
+        if (strlen($this->lastAmount) > 0) {
+            $this->xml->request->recurring->addChild("lastAmount", $this->lastAmount);
+        }
+        if (strlen($this->lastDate) > 0) {
+            $this->xml->request->recurring->addChild("lastDate", $this->lastDate);
+        }
+    }
+
+    protected function setCommand()
+    {
         $this->xml->addChild("command", $this->type);
     }
 
-    protected function setApiRequest() {
+    protected function setApiRequest()
+    {
         $this->setRequest();
         $this->setCommand();
         $this->xml->addChild("request");
@@ -323,16 +930,63 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
         $this->setAddress();
     }
 
-    protected function setRapiRequest() {
+    protected function setPaymentOrderRequest()
+    {
+        $this->setRequest();
+        $this->setCommand();
+
+        $this->xml->addChild("request");
+        if (strlen($this->payOrderId) > 0) {
+
+            $this->xml->request->addChild("payOrderId", $this->payOrderId);
+
+        } else {
+
+            if (strlen($this->customerId) > 0) {
+                $this->xml->request->addChild("customerId", $this->customerId);
+            }
+
+            if (strlen($this->referenceNum) > 0) {
+                $this->xml->request->addChild("referenceNum", $this->customerIdExt);
+            }
+
+            if (strlen($this->fraudCheck)) {
+                $this->xml->request->addChild("fraudCheck", $this->fraudCheck);
+            }
+
+            $this->xml->request->addChild("transactionDetail");
+            $this->xml->request->transactionDetail->addChild("description", $this->description);
+            $this->xml->request->transactionDetail->addChild("comments", $this->comments);
+            $this->xml->request->transactionDetail->addChild("emailSubject", $this->emailSubject);
+            $this->xml->request->transactionDetail->addChild("expirationDate", $this->expirationDate);
+
+            $this->xml->request->transactionDetail->addChild("payType");
+            $this->xml->request->transactionDetail->payType->addChild("creditCard");
+            $this->xml->request->transactionDetail->payType->creditCard->addChild("processorID", $this->processorID);
+            $this->xml->request->transactionDetail->payType->creditCard->addChild("operation", $this->operation);
+            $this->xml->request->transactionDetail->payType->creditCard->addChild("numberOfInstallments", $this->numberOfInstallments);
+
+            if (strlen($this->currencyCode) > 0) {
+                $this->xml->request->transactionDetail->payType->creditCard->addChild("currencyCode", strtoupper($this->currencyCode));
+            }
+
+            $this->xml->request->transactionDetail->payType->creditCard->addChild("amount", strtoupper($this->chargeTotal));
+
+            $this->setAddress();
+        }
+    }
+
+    protected function setRapiRequest()
+    {
         $this->setRequest();
         $this->setCommand();
         $this->xml->addChild("request");
         $this->xml->request->addChild("filterOptions");
-        if (strlen($this->transactionID) > 0) {
-            $this->xml->request->filterOptions->addChild("transactionId", $this->transactionID);
-        } elseif (strlen($this->orderID) > 0) {
+        if (strlen($this->orderID) > 0) {
             $this->xml->request->filterOptions->addChild("orderId", $this->orderID);
-        } elseif (strtolower($this->period) == "range") {
+        } else if (strlen($this->transactionID) > 0) {
+            $this->xml->request->filterOptions->addChild("transactionId", $this->transactionID);
+        } else if (strtolower($this->period) == "range") {
             $this->xml->request->filterOptions->addChild("period", $this->period);
             $this->xml->request->filterOptions->addChild("pageSize", $this->pageSize);
             $this->xml->request->filterOptions->addChild("startDate", $this->startDate);
@@ -341,9 +995,9 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase {
             $this->xml->request->filterOptions->addChild("endTime", $this->endTime);
             $this->xml->request->filterOptions->addChild("orderByName", $this->orderByName);
             $this->xml->request->filterOptions->addChild("orderByDirection", $this->orderByDirection);
-        } elseif (in_array(strtolower($this->period), array("today", "yesterday", "lastmonth", "thismonth"))) {
+        } else if (in_array(strtolower($this->period), array("today", "yesterday", "lastmonth", "thismonth"))) {
             $this->xml->request->filterOptions->addChild("period", $this->period);
-        } elseif ((strlen($this->pageToken) > 0) && (strlen($this->pageNumber) > 0)) {
+        } else if ((strlen($this->pageToken) > 0) && (strlen($this->pageNumber) > 0)) {
             $this->xml->request->filterOptions->addChild("pageToken", $this->pageToken);
             $this->xml->request->filterOptions->addChild("pageNumber", $this->pageNumber);
         } else {

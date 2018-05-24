@@ -1,25 +1,37 @@
-.maxipago-bank-selector input{
-    margin:0;padding:0;
-    -webkit-appearance:none;
-    -moz-appearance:none;
-    appearance:none;
+.maxipago-bank-selector input {
+    margin: 0;
+    padding: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 }
-.maxipago-bank-17{background-image:url('../images/banks/17.png');}
-.maxipago-bank-18{background-image:url('../images/banks/18.png');}
-.maxipago-bank-selector input:active +.maxipago-logo-bank{opacity: .9;}
-.maxipago-bank-selector input:checked +.maxipago-logo-bank{
+
+.maxipago-bank-17 {
+    background-image: url('../images/banks/17.png');
+}
+
+.maxipago-bank-18 {
+    background-image: url('../images/banks/18.png');
+}
+
+.maxipago-bank-selector input:active + .maxipago-logo-bank {
+    opacity: .9;
+}
+
+.maxipago-bank-selector input:checked + .maxipago-logo-bank {
     -webkit-filter: none;
     -moz-filter: none;
     filter: none;
 }
-.maxipago-logo-bank{
-    cursor:pointer;
-    background-size:contain;
-    background-repeat:no-repeat;
-    display:inline-block !important;
-    width:50px !important;
-    margin-right:10px;
-    height:50px;
+
+.maxipago-logo-bank {
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    display: inline-block !important;
+    width: 50px !important;
+    margin-right: 10px;
+    height: 50px;
     -webkit-transition: all 100ms ease-in;
     -moz-transition: all 100ms ease-in;
     transition: all 100ms ease-in;
@@ -27,7 +39,8 @@
     -moz-filter: brightness(1.8) grayscale(1) opacity(.7);
     filter: brightness(1.8) grayscale(1) opacity(.7);
 }
-.maxipago-logo-bank:hover{
+
+.maxipago-logo-bank:hover {
     -webkit-filter: brightness(1.2) grayscale(.5) opacity(.9);
     -moz-filter: brightness(1.2) grayscale(.5) opacity(.9);
     filter: brightness(1.2) grayscale(.5) opacity(.9);

@@ -7,7 +7,8 @@ include_once dirname(__FILE__) . '/maxipago/XmlBuilder.php';
 include_once dirname(__FILE__) . '/maxipago/ResponseBase.php';
 include_once dirname(__FILE__) . '/maxipago/Request.php';
 
-class maxiPago extends maxiPago_ResponseBase {
+class maxiPago extends maxiPago_ResponseBase
+{
 
     private $request;
     public $response;
@@ -24,10 +25,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * assessment process.
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function creditCardAuth($array) {
+    public function creditCardAuth($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -41,11 +42,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postXML');
             $req->setTransactionType("auth");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -60,10 +61,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * In these cases the authorization expires within 5 days.
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function creditCardCapture($array) {
+    public function creditCardCapture($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -77,11 +78,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postXML');
             $req->setTransactionType("capture");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -97,10 +98,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * The response sent is final.
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function creditCardSale($array) {
+    public function creditCardSale($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -114,11 +115,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postXML');
             $req->setTransactionType("sale");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -133,10 +134,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * authorize a recurring payment to capture it later).
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function createRecurring($array) {
+    public function createRecurring($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -150,11 +151,47 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postXML');
             $req->setTransactionType("recurringPayment");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Creates a recurring payment
+     *
+     * A recurring payment schedules a transaction to be run
+     * at a specific interval, starting at a specific date.
+     * A recurring payment is always a Sale (you cannot
+     * authorize a recurring payment to capture it later).
+     *
+     * @param array $array
+     * @throws BadMethodCallException
+     */
+    public function updateRecurring($array)
+    {
+        try {
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
+            }
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
+            }
+            $this->request = $array;
+            $req = new maxiPago_Request($this->credentials);
+            $req->setVars($this->request);
+            $req->setEndpoint($this->host . '/UniversalAPI/postXML');
+            $req->setTransactionType("modify-recurring");
+            $this->response = $req->processRequest();
+            $this->xmlRequest = $req->xmlRequest;
+            $this->xmlResponse = $req->xmlResponse;
+        } catch (Exception $e) {
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -168,10 +205,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * a transaction before any funds change hands.
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function creditCardVoid($array) {
+    public function creditCardVoid($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -185,11 +222,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postXML');
             $req->setTransactionType("void");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -205,10 +242,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * to be completed.
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function creditCardRefund($array) {
+    public function creditCardRefund($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -222,11 +259,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postXML');
             $req->setTransactionType("return");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -241,10 +278,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * account number and PIN the bank approves the sale
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function onlineDebitSale($array) {
+    public function onlineDebitSale($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -258,11 +295,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postXML');
             $req->setTransactionType("onlineDebit");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -277,10 +314,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * to access the boleto payment slip.
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function boletoSale($array) {
+    public function boletoSale($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -294,11 +331,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postXML');
             $req->setTransactionType("boleto");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -306,12 +343,11 @@ class maxiPago extends maxiPago_ResponseBase {
 
     /**
      * Cancels a recurring payment
-     *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function cancelRecurring($array) {
+    public function cancelRecurring($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -325,11 +361,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postAPI');
             $req->setTransactionType("cancel-recurring");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -342,10 +378,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * card information
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function addProfile($array) {
+    public function addProfile($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -359,11 +395,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postAPI');
             $req->setTransactionType("add-consumer");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -376,10 +412,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * card information
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function updateProfile($array) {
+    public function updateProfile($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -393,11 +429,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postAPI');
             $req->setTransactionType("update-consumer");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -405,12 +441,11 @@ class maxiPago extends maxiPago_ResponseBase {
 
     /**
      * Removes a customer profile
-     *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function deleteProfile($array) {
+    public function deleteProfile($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -424,11 +459,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postAPI');
             $req->setTransactionType("delete-consumer");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -443,10 +478,10 @@ class maxiPago extends maxiPago_ResponseBase {
      * token that can be used when sending new transactions.
      *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function addCreditCard($array) {
+    public function addCreditCard($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -460,11 +495,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postAPI');
             $req->setTransactionType("add-card-onfile");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -473,12 +508,11 @@ class maxiPago extends maxiPago_ResponseBase {
 
     /**
      * Removes a credit card previously saved
-     *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function deleteCreditCard($array) {
+    public function deleteCreditCard($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -492,11 +526,11 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/UniversalAPI/postAPI');
             $req->setTransactionType("delete-card-onfile");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }
@@ -504,12 +538,11 @@ class maxiPago extends maxiPago_ResponseBase {
 
     /**
      * Extracts a transaction report
-     *
      * @param array $array
-     *
      * @throws BadMethodCallException
      */
-    public function pullReport($array) {
+    public function pullReport($array)
+    {
         try {
             if (!is_array($array)) {
                 throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
@@ -523,11 +556,197 @@ class maxiPago extends maxiPago_ResponseBase {
             $req->setEndpoint($this->host . '/ReportsAPI/servlet/ReportsAPI');
             $req->setTransactionType("report");
             $this->response = $req->processRequest();
-            $this->xmlRequest = $req->xml;
+            $this->xmlRequest = $req->xmlRequest;
             $this->xmlResponse = $req->xmlResponse;
         } catch (Exception $e) {
             if (is_object(maxiPago_RequestBase::$logger)) {
-                maxiPago_RequestBase::$logger->logFatal($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            }
+            throw $e;
+        }
+    }
+
+    public function redepay($array)
+    {
+        try {
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
+            }
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
+            }
+            $this->request = $array;
+            $req = new maxiPago_Request($this->credentials);
+            $req->setVars($this->request);
+            $req->setEndpoint($this->host . '/UniversalAPI/postXML');
+            $req->setTransactionType("redepay");
+            $this->response = $req->processRequest();
+            $this->xmlRequest = $req->xmlRequest;
+            $this->xmlResponse = $req->xmlResponse;
+        } catch (Exception $e) {
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            }
+            throw $e;
+        }
+    }
+
+    public function authCreditCard3DS($array)
+    {
+        try {
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
+            }
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
+            }
+            $this->request = $array;
+            $req = new maxiPago_Request($this->credentials);
+            $req->setVars($this->request);
+            $req->setEndpoint($this->host . '/UniversalAPI/postXML');
+            $req->setTransactionType("authCreditCard3DS");
+            $this->response = $req->processRequest();
+            $this->xmlRequest = $req->xmlRequest;
+            $this->xmlResponse = $req->xmlResponse;
+        } catch (Exception $e) {
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            }
+            throw $e;
+        }
+    }
+
+    public function saleCreditCard3DS($array)
+    {
+        try {
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
+            }
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
+            }
+            $this->request = $array;
+            $req = new maxiPago_Request($this->credentials);
+            $req->setVars($this->request);
+            $req->setEndpoint($this->host . '/UniversalAPI/postXML');
+            $req->setTransactionType("saleCreditCard3DS");
+            $this->response = $req->processRequest();
+            $this->xmlRequest = $req->xmlRequest;
+            $this->xmlResponse = $req->xmlResponse;
+        } catch (Exception $e) {
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            }
+            throw $e;
+        }
+    }
+
+    public function saleDebitCard3DS($array)
+    {
+        try {
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
+            }
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
+            }
+            $this->request = $array;
+            $req = new maxiPago_Request($this->credentials);
+            $req->setVars($this->request);
+            $req->setEndpoint($this->host . '/UniversalAPI/postXML');
+            $req->setTransactionType("saleDebitCard3DS");
+            $this->response = $req->processRequest();
+            $this->xmlRequest = $req->xmlRequest;
+            $this->xmlResponse = $req->xmlResponse;
+        } catch (Exception $e) {
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            }
+            throw $e;
+        }
+    }
+
+    public function addPaymentOrder($array)
+    {
+        try {
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
+            }
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
+            }
+            $this->request = $array;
+            $req = new maxiPago_Request($this->credentials);
+            $req->setVars($this->request);
+            $req->setEndpoint($this->host . '/UniversalAPI/postAPI');
+            $req->setTransactionType("add-payment-order");
+            $this->response = $req->processRequest();
+            $this->xmlRequest = $req->xmlRequest;
+            $this->xmlResponse = $req->xmlResponse;
+        } catch (Exception $e) {
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            }
+            throw $e;
+        }
+    }
+
+
+    /**
+     * Removes a credit card previously saved
+     * @param array $array
+     * @throws BadMethodCallException
+     */
+    public function cancelPaymentOrder($array)
+    {
+        try {
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
+            }
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
+            }
+            $this->request = $array;
+            $req = new maxiPago_Request($this->credentials);
+            $req->setVars($this->request);
+            $req->setEndpoint($this->host . '/UniversalAPI/postAPI');
+            $req->setTransactionType("cancel-payment-order");
+            $this->response = $req->processRequest();
+            $this->xmlRequest = $req->xmlRequest;
+            $this->xmlResponse = $req->xmlResponse;
+        } catch (Exception $e) {
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
+            }
+            throw $e;
+        }
+    }
+
+    /**
+     * Extracts a transaction report
+     * @param array $array
+     * @throws BadMethodCallException
+     */
+    public function pullPaymentOrder($array)
+    {
+        try {
+            if (!is_array($array)) {
+                throw new BadMethodCallException('[maxiPago Class] Method ' . __METHOD__ . ' must receive array as input');
+            }
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logNotice('Calling method ' . __METHOD__);
+            }
+            $this->request = $array;
+            $req = new maxiPago_Request($this->credentials);
+            $req->setVars($this->request);
+            $req->setEndpoint($this->host . '/UniversalAPI/postAPI');
+            $req->setTransactionType("get-payment-order");
+            $this->response = $req->processRequest();
+            $this->xmlRequest = $req->xmlRequest;
+            $this->xmlResponse = $req->xmlResponse;
+        } catch (Exception $e) {
+            if (is_object(maxiPago_RequestBase::$logger)) {
+                maxiPago_RequestBase::$logger->logCrit($e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine());
             }
             throw $e;
         }

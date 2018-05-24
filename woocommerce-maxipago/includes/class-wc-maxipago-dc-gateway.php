@@ -3,31 +3,34 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
+class WC_maxiPago_DC_Gateway extends WC_Payment_Gateway_CC
 {
 
-    const ID = 'maxipago-ticket';
+    const ID = 'maxipago-dc';
 
-    /** @var WC_maxiPago_Ticket_API */
+    /** @var WC_maxiPago_DC_API */
     public $api;
-
-    public $supports = array('products');
 
     public $environment;
     public $merchant_id;
     public $merchant_key;
     public $invoice_prefix;
     public $save_log;
-    public $bank;
-    public $days_to_expire;
-    public $instructions;
+    public $soft_descriptor;
+    public $interest_rate_caculate_method;
+    public $mpi_processor;
+    public $failure_action;
+    public $acquirers_visa;
+    public $acquirers_mastercard;
+
+    public $supports = array('products', 'refunds');
 
     public function __construct()
     {
 
         $this->id = self::ID;
-        $this->method_title = __('maxiPago! - Ticket', 'woocommerce-maxipago');
-        $this->method_description = __('Accept Payments by Ticket using the maxiPago!', 'woocommerce-maxipago');
+        $this->method_title = __('maxiPago! - Debit Card', 'woocommerce-maxipago');
+        $this->method_description = __('Accept Payments by Debit Card using the maxiPago!', 'woocommerce-maxipago');
         $this->has_fields = true;
 
         // Global Settings
@@ -39,12 +42,12 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
         $this->invoice_prefix = $this->get_option('invoice_prefix', 'WC-');
         $this->save_log = $this->get_option('save_log');
 
-        // Ticket Settings
-        $this->bank = $this->get_option('bank');
-        $this->days_to_expire = $this->get_option('days_to_expire');
-        $this->instructions = $this->get_option('instructions');
+        // DC Settings
+        $this->soft_descriptor = $this->get_option('soft_descriptor');
+        $this->acquirers_visa = $this->get_option('acquirers_visa');
+        $this->acquirers_mastercard = $this->get_option('acquirers_mastercard');
 
-        $this->api = new WC_maxiPago_Ticket_API($this);
+        $this->api = new WC_maxiPago_DC_API($this);
 
         $this->init_form_fields();
         $this->init_settings();
@@ -55,12 +58,22 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
 
         // Admin actions
         if (is_admin()) {
+            add_action('admin_notices', array($this, 'do_ssl_check'));
             add_action('woocommerce_update_options_payment_gateways_' . $this->id, array($this, 'process_admin_options'));
+            add_action('admin_enqueue_scripts', array($this, 'admin_scripts'));
+            add_action('woocommerce_order_action_cancel_order', array($this, 'process_cancel_order_meta_box_actions'));
         }
+    }
 
-        // Checkout Scripts
-        if (is_checkout() || is_checkout_pay_page()) {
-            wp_enqueue_script('jquery-maskedinput', plugins_url('assets/js/jquery-maskedinput/jquery.maskedinput.js', plugin_dir_path(__FILE__)), array('jquery'), WC_maxiPago::VERSION, true);
+    public function do_ssl_check()
+    {
+        if ($this->enabled == "yes") {
+            $section = isset($_GET['section']) ? $_GET['section'] : '';
+            if (strpos($section, 'maxipago') !== false) {
+                if (get_option('woocommerce_force_ssl_checkout') == "no") {
+                    echo "<div class=\"error\"><p>" . sprintf(__("<strong>%s</strong> is enabled and WooCommerce is not forcing the SSL certificate on your checkout page. Please ensure that you have a valid SSL certificate and that you are <a href=\"%s\">forcing the checkout pages to be secured.</a>", 'woocommerce-maxipago'), $this->method_title, admin_url('admin.php?page=wc-settings&tab=checkout')) . "</p></div>";
+                }
+            }
         }
     }
 
@@ -69,6 +82,7 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
         return apply_filters(
             'woocommerce_maxipago_supported_currencies', array(
                 'BRL',
+                'USD',
             )
         );
     }
@@ -95,7 +109,7 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
             'enabled' => array(
                 'title' => __('Enable/Disable', 'woocommerce-maxipago'),
                 'type' => 'checkbox',
-                'label' => __('Enable maxiPago! Ticket', 'woocommerce-maxipago'),
+                'label' => __('Enable maxiPago! Debit Card', 'woocommerce-maxipago'),
                 'default' => 'no'
             ),
             'title' => array(
@@ -103,14 +117,14 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
                 'type' => 'text',
                 'description' => __('Displayed at checkout.', 'woocommerce-maxipago'),
                 'desc_tip' => true,
-                'default' => __('Ticket', 'woocommerce-maxipago')
+                'default' => __('Debit Card', 'woocommerce-maxipago')
             ),
             'description' => array(
                 'title' => __('Description', 'woocommerce-maxipago'),
                 'type' => 'textarea',
                 'description' => __('Displayed at checkout.', 'woocommerce-maxipago'),
                 'desc_tip' => true,
-                'default' => __('Pay your order with a ticket.', 'woocommerce-maxipago')
+                'default' => __('Pay your order with a debit card.', 'woocommerce-maxipago')
             ),
 
             'integration' => array(
@@ -172,43 +186,69 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
                 'description' => ''
             ),
 
-            'bank' => array(
-                'title' => __('Bank of ticket', 'woocommerce-maxipago'),
+            'soft_descriptor' => array(
+                'title' => __('Soft Descriptor', 'woocommerce-maxipago'),
+                'type' => 'text',
+                'description' => __('For retailers using Cielo is possible to enter descriptive field that will appear on the customers invoice. This feature is available for the Visa, JCB, Mastercard, Aura, Diners and Elo brands for the authorization or sale transactions. Use only letters and numbers without spaces.', 'woocommerce-maxipago'),
+                'desc_tip' => true,
+                'default' => '',
+                'custom_attributes' => array(
+                    'maxlength' => '13'
+                ),
+            ),
+
+            'mpi_processor' => array(
+                'title' => __('MPI Processor', 'woocommerce-maxipago'),
                 'type' => 'select',
-                'description' => __('Choose your bank of ticket.', 'woocommerce-maxipago'),
+                'description' => '',
+                'class' => 'wc-enhanced-select',
+                'default' => '',
+                'options' => $this->api->get_mpi_processors()
+            ),
+
+            'failure_action' => array(
+                'title' => __('Failure Action', 'woocommerce-maxipago'),
+                'type' => 'select',
+                'description' => '',
+                'class' => 'wc-enhanced-select',
+                'default' => '',
+                'options' => $this->api->get_mpi_action()
+            ),
+
+            'acquirers' => array(
+                'title' => __('Acquirers', 'woocommerce-maxipago'),
+                'type' => 'title',
+                'description' => ''
+            ),
+
+            'acquirers_visa' => array(
+                'title' => __('Visa', 'woocommerce-maxipago'),
+                'type' => 'select',
+                'description' => __('Choose your acquirer for Visa.', 'woocommerce-maxipago'),
                 'desc_tip' => true,
                 'class' => 'wc-enhanced-select',
                 'default' => '',
-                'options' => $this->api->get_banks('ticket')
+                'options' => $this->api->get_processor_by_acquirer()
             ),
-            'days_to_expire' => array(
-                'title' => __('Days to expire Ticket', 'woocommerce-maxipago'),
-                'type' => 'text',
-                'description' => __('Choose the number of days to expire ticket.', 'woocommerce-maxipago'),
+            'acquirers_mastercard' => array(
+                'title' => __('MasterCard', 'woocommerce-maxipago'),
+                'type' => 'select',
+                'description' => __('Choose your acquirer for MasterCard.', 'woocommerce-maxipago'),
                 'desc_tip' => true,
-                'default' => '5',
-            ),
-            'instructions' => array(
-                'title' => __('Instructions', 'woocommerce-maxipago'),
-                'type' => 'textarea',
-                'description' => __('Enter the instructions that will appear on the ticket.', 'woocommerce-maxipago'),
-                'desc_tip' => true,
+                'class' => 'wc-enhanced-select',
                 'default' => '',
-            ),
+                'options' => $this->api->get_processor_by_acquirer()
+            )
         );
     }
 
-    public function payment_fields()
+    public function form()
     {
+        wp_enqueue_script('wc-credit-card-form');
         if ($description = $this->get_description()) {
             echo wpautop(wptexturize($description));
         }
-        wc_get_template(
-            'ticket/payment-form.php',
-            array(),
-            'woocommerce/maxipago/',
-            WC_maxiPago::get_templates_path()
-        );
+        include_once WC_maxiPago::get_plugin_path() . 'templates/dc/payment-form.php';
     }
 
     public function process_payment($order_id)
@@ -221,47 +261,59 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
     {
         $order = new WC_Order($order_id);
         $order_status = $order->get_status();
+        $request_data = get_post_meta($order_id, '_maxipago_request_data', true);
         $result_data = get_post_meta($order_id, '_maxipago_result_data', true);
-        if (isset($result_data['boletoUrl']) && 'on-hold' == $order_status) {
+        if (
+            isset($result_data['authenticationURL'])
+            && 'on-hold' == $order_status
+        ) {
             wc_get_template(
-                'ticket/payment-instructions.php',
+                'dc/payment-instructions.php',
                 array(
-                    'url' => $result_data['boletoUrl'],
+                    'url' => $result_data['authenticationURL']
                 ),
                 'woocommerce/maxipago/',
                 WC_maxiPago::get_templates_path()
             );
-
-            add_post_meta($order_id, 'maxipago_ticket_url', $result_data['boletoUrl']);
         }
     }
 
     public function set_email_instructions(WC_Order $order, $sent_to_admin, $plain_text = false)
     {
-        if ($sent_to_admin || !in_array($order->get_status(), array('on-hold')) || $this->id !== $order->get_payment_method()) {
+        if ($sent_to_admin || !in_array($order->get_status(), array('processing', 'on-hold')) || $this->id !== $order->get_payment_method()) {
             return;
         }
+
+        $request_data = get_post_meta($order->get_id(), '_maxipago_request_data', true);
         $result_data = get_post_meta($order->get_id(), '_maxipago_result_data', true);
-        if (isset($result_data['boletoUrl'])) {
+
+        if (isset($result_data['creditCardScheme'])) {
             if ($plain_text) {
                 wc_get_template(
-                    'ticket/emails/plain-instructions.php',
+                    'dc/emails/plain-instructions.php',
                     array(
-                        'url' => $result_data['boletoUrl'],
+                        'url' => $result_data['authenticationURL']
                     ),
                     'woocommerce/maxipago/',
                     WC_maxiPago::get_templates_path()
                 );
             } else {
                 wc_get_template(
-                    'ticket/emails/html-instructions.php',
+                    'dc/emails/html-instructions.php',
                     array(
-                        'url' => $result_data['boletoUrl'],
+                        'url' => $result_data['authenticationURL']
                     ),
                     'woocommerce/maxipago/',
                     WC_maxiPago::get_templates_path()
                 );
             }
+        }
+    }
+
+    public function admin_scripts($hook)
+    {
+        if ('woocommerce_page_wc-settings' === $hook && (isset($_GET['section']) && $this->id == strtolower($_GET['section']))) {
+            wp_enqueue_script('woocommerce-maxipago-admin-scripts', plugins_url('assets/js/admin-scripts.js', plugin_dir_path(__FILE__)), array('jquery'), WC_maxiPago::VERSION, true);
         }
     }
 

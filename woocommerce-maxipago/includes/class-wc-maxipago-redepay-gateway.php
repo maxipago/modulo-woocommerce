@@ -3,12 +3,12 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
+class WC_maxiPago_RedePay_Gateway extends WC_Payment_Gateway_CC
 {
 
-    const ID = 'maxipago-ticket';
+    const ID = 'maxipago-redepay';
 
-    /** @var WC_maxiPago_Ticket_API */
+    /** @var WC_maxiPago_RedePay_API */
     public $api;
 
     public $supports = array('products');
@@ -18,16 +18,14 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
     public $merchant_key;
     public $invoice_prefix;
     public $save_log;
-    public $bank;
-    public $days_to_expire;
-    public $instructions;
+    public $banks;
 
     public function __construct()
     {
 
         $this->id = self::ID;
-        $this->method_title = __('maxiPago! - Ticket', 'woocommerce-maxipago');
-        $this->method_description = __('Accept Payments by Ticket using the maxiPago!', 'woocommerce-maxipago');
+        $this->method_title = __('maxiPago! - RedePay', 'woocommerce-maxipago');
+        $this->method_description = __('Accept Payments by RedePay using the maxiPago!', 'woocommerce-maxipago');
         $this->has_fields = true;
 
         // Global Settings
@@ -39,12 +37,10 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
         $this->invoice_prefix = $this->get_option('invoice_prefix', 'WC-');
         $this->save_log = $this->get_option('save_log');
 
-        // Ticket Settings
-        $this->bank = $this->get_option('bank');
-        $this->days_to_expire = $this->get_option('days_to_expire');
-        $this->instructions = $this->get_option('instructions');
+        // RedePay Settings
+        $this->banks = $this->get_option('banks');
 
-        $this->api = new WC_maxiPago_Ticket_API($this);
+        $this->api = new WC_maxiPago_RedePay_API($this);
 
         $this->init_form_fields();
         $this->init_settings();
@@ -95,22 +91,22 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
             'enabled' => array(
                 'title' => __('Enable/Disable', 'woocommerce-maxipago'),
                 'type' => 'checkbox',
-                'label' => __('Enable maxiPago! Ticket', 'woocommerce-maxipago'),
-                'default' => 'no'
+                'label' => __('Enable maxiPago! RedePay', 'woocommerce-maxipago'),
+                'default' => 'no',
             ),
             'title' => array(
                 'title' => __('Title', 'woocommerce-maxipago'),
                 'type' => 'text',
                 'description' => __('Displayed at checkout.', 'woocommerce-maxipago'),
                 'desc_tip' => true,
-                'default' => __('Ticket', 'woocommerce-maxipago')
+                'default' => __('RedePay', 'woocommerce-maxipago')
             ),
             'description' => array(
                 'title' => __('Description', 'woocommerce-maxipago'),
                 'type' => 'textarea',
                 'description' => __('Displayed at checkout.', 'woocommerce-maxipago'),
                 'desc_tip' => true,
-                'default' => __('Pay your order with a ticket.', 'woocommerce-maxipago')
+                'default' => __('Pay your order with a RedePay.', 'woocommerce-maxipago')
             ),
 
             'integration' => array(
@@ -170,31 +166,7 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
                 'title' => __('Payment Options', 'woocommerce-maxipago'),
                 'type' => 'title',
                 'description' => ''
-            ),
-
-            'bank' => array(
-                'title' => __('Bank of ticket', 'woocommerce-maxipago'),
-                'type' => 'select',
-                'description' => __('Choose your bank of ticket.', 'woocommerce-maxipago'),
-                'desc_tip' => true,
-                'class' => 'wc-enhanced-select',
-                'default' => '',
-                'options' => $this->api->get_banks('ticket')
-            ),
-            'days_to_expire' => array(
-                'title' => __('Days to expire Ticket', 'woocommerce-maxipago'),
-                'type' => 'text',
-                'description' => __('Choose the number of days to expire ticket.', 'woocommerce-maxipago'),
-                'desc_tip' => true,
-                'default' => '5',
-            ),
-            'instructions' => array(
-                'title' => __('Instructions', 'woocommerce-maxipago'),
-                'type' => 'textarea',
-                'description' => __('Enter the instructions that will appear on the ticket.', 'woocommerce-maxipago'),
-                'desc_tip' => true,
-                'default' => '',
-            ),
+            )
         );
     }
 
@@ -204,7 +176,7 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
             echo wpautop(wptexturize($description));
         }
         wc_get_template(
-            'ticket/payment-form.php',
+            'redepay/payment-form.php',
             array(),
             'woocommerce/maxipago/',
             WC_maxiPago::get_templates_path()
@@ -222,17 +194,15 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
         $order = new WC_Order($order_id);
         $order_status = $order->get_status();
         $result_data = get_post_meta($order_id, '_maxipago_result_data', true);
-        if (isset($result_data['boletoUrl']) && 'on-hold' == $order_status) {
+        if (isset($result_data['authenticationURL']) && 'on-hold' == $order_status) {
             wc_get_template(
-                'ticket/payment-instructions.php',
+                'redepay/payment-instructions.php',
                 array(
-                    'url' => $result_data['boletoUrl'],
+                    'url' => $result_data['authenticationURL'],
                 ),
                 'woocommerce/maxipago/',
                 WC_maxiPago::get_templates_path()
             );
-
-            add_post_meta($order_id, 'maxipago_ticket_url', $result_data['boletoUrl']);
         }
     }
 
@@ -245,18 +215,18 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
         if (isset($result_data['boletoUrl'])) {
             if ($plain_text) {
                 wc_get_template(
-                    'ticket/emails/plain-instructions.php',
+                    'redepay/emails/plain-instructions.php',
                     array(
-                        'url' => $result_data['boletoUrl'],
+                        'url' => $result_data['authenticationURL'],
                     ),
                     'woocommerce/maxipago/',
                     WC_maxiPago::get_templates_path()
                 );
             } else {
                 wc_get_template(
-                    'ticket/emails/html-instructions.php',
+                    'redepay/emails/html-instructions.php',
                     array(
-                        'url' => $result_data['boletoUrl'],
+                        'url' => $result_data['authenticationURL'],
                     ),
                     'woocommerce/maxipago/',
                     WC_maxiPago::get_templates_path()
@@ -264,5 +234,4 @@ class WC_maxiPago_Ticket_Gateway extends WC_Payment_Gateway_CC
             }
         }
     }
-
 }
