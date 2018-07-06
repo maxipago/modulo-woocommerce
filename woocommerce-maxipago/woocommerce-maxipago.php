@@ -5,7 +5,7 @@
  * Description: <strong>Oficial</strong> Plugin for maxiPago! Smart Payments.
  * Author: maxiPago! Smart Payments
  * Author URI: http://www.maxipago.com/
- * Version: 0.3.9
+ * Version: 0.3.12
  * License: GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: woocommerce-maxipago
@@ -23,7 +23,7 @@ if (!class_exists('WC_maxiPago')) {
     class WC_maxiPago
     {
 
-        const VERSION = '0.3.9';
+        const VERSION = '0.3.12';
 
         protected static $instance = null;
         protected $log = false;
@@ -56,6 +56,8 @@ if (!class_exists('WC_maxiPago')) {
                 add_action('woocommerce_api_' . strtolower(get_class($this) . '_success'), array($this, 'check_ipn_response'));
                 add_action('woocommerce_api_' . strtolower(get_class($this) . '_failure'), array($this, 'check_ipn_response'));
                 add_action('woocommerce_api_' . strtolower(get_class($this) . '_notifications'), array($this, 'check_ipn_response'));
+
+                add_action('woocommerce_api_' . strtolower(get_class($this) . '_cron'), array($this, 'execute_crons'));
 
                 add_action('admin_notices', array($this, 'show_admin_notices'));
                 add_action('admin_notices', array($this, 'show_ipn_notices'));
@@ -590,6 +592,20 @@ if (!class_exists('WC_maxiPago')) {
                 $seller_id = get_post_meta($post_id,'seller_id',true);
                 echo $this->get_seller_name($seller_id);
             }
+        }
+
+        public function execute_crons()
+        {
+            do_action('maxipago_update_cc_orders');
+            do_action('maxipago_update_dc_orders');
+            do_action('maxipago_update_ticket_orders');
+            do_action('maxipago_update_redepay_orders');
+            do_action('maxipago_update_tef_orders');
+
+            $paragraph = '<p>' . __('maxiPago! cron\'s max', 'woocommerce-maxipago') . '</p>';
+            $link = '<p><a href="' . home_url('/') . '">' . __('Click here', 'woocommerce-maxipago') . '</a>';
+            $text = __(' to return to shop.', 'woocommerce-maxipago') . '</p>';
+            wp_die($paragraph . $link . $text);
         }
     }
 

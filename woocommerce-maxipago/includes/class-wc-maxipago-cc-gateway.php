@@ -26,6 +26,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
     public $merchant_secret;
     public $invoice_prefix;
     public $split_payment;
+    public $split_processor;
     public $save_log;
     public $soft_descriptor;
     public $installments;
@@ -78,6 +79,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
         $this->merchant_secret = $this->get_option('merchant_secret');
         $this->invoice_prefix = $this->get_option('invoice_prefix', 'WC-');
         $this->split_payment = $this->get_option('split_payment');
+        $this->split_processor = $this->get_option('split_processor');
         $this->save_log = $this->get_option('save_log');
 
         // CC Settings
@@ -239,6 +241,16 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
                 'label' => __('Enable Split Payment', 'woocommerce-maxipago'),
                 'default' => 'no',
                 'description' => __('Enable <i>maxiPago! - Split Payment</i> for sellers!', 'woocommerce-maxipago')
+            ),
+            'split_processor' => array(
+                'title' => __('Split Processor', 'woocommerce-maxipago'),
+                'description' => __('', 'woocommerce-maxipago'),
+                'type' => 'select',
+                'default' => '2',
+                'options' => array(
+                    '1' => 'MAXICARD',
+                    '2' => __('Simulador de Teste', 'woocommerce-maxipago')
+                )
             ),
             'save_log' => array(
                 'title' => __('Save Log', 'woocommerce-maxipago'),
@@ -536,7 +548,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
                                 <th class="sort">&nbsp;</th>
                                 <th><?php _e( 'Seller', 'woocommerce-maxipago' ); ?></th>
                                 <th><?php _e( 'Merchant ID', 'woocommerce-maxipago' ); ?></th>
-                                <th><?php _e( 'Merchant Key', 'woocommerce-maxipago' ); ?></th>
+                                <?php /**  <th><?php _e( 'Merchant Key', 'woocommerce-maxipago' ); ?></th> **/ ?>
                                 <th><?php _e( 'Percentual', 'woocommerce-maxipago' ); ?></th>
                                 <th><?php _e( 'Days to Pay', 'woocommerce-maxipago' ); ?></th>
                                 <th><?php _e( 'Pay with Installments', 'woocommerce-maxipago'); ?></th>
@@ -552,7 +564,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
                                             <td class="sort"></td>
                                             <td><input required type="text" value="<?php echo esc_attr($seller['seller_name']); ?>" name="<?php echo 'mp_sellers_name[' . $index .']'; ?>" /></td>
                                             <td><input required type="text" value="<?php echo esc_attr($seller['seller_merchant_id']); ?>" name="<?php echo 'mp_sellers_merchant_id[' . $index .']'; ?>" /></td>
-                                            <td><input required type="text" value="<?php echo esc_attr($seller['seller_merchant_key']); ?>" name="<?php echo 'mp_sellers_merchant_key[' . $index .']'; ?>" /></td>
+                                            <?php /** <td><input required type="text" value="<?php echo esc_attr($seller['seller_merchant_key']); ?>" name="<?php echo 'mp_sellers_merchant_key[' . $index .']'; ?>" /></td> **/ ?>
                                             <td><input required type="number" step="0.01" min="0.01" max="100" value="<?php echo esc_attr($seller['seller_percentual']); ?>" name="<?php echo 'mp_sellers_percentual[' . $index .']'; ?>" /></td>
                                             <td><input required type="number" step="1" min="1" max="30" value="<?php echo esc_attr($seller['seller_days_to_pay']); ?>" name="<?php echo 'mp_sellers_days_to_pay[' . $index .']'; ?>" /></td>
                                             <td><input data-index="<?php echo $index; ?>" class="seller_installment_payment_checkbox" type="checkbox" <?php echo $seller['seller_installment_payment'] == 'on'  ? 'checked' : ''; ?> name="<?php echo 'mp_sellers_installment_payment[' . $index .']'; ?>"/></td>
@@ -614,7 +626,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
         {
             $seller_names                   = array_map( 'wc_clean', $_POST['mp_sellers_name'] );
             $seller_merchant_ids            = array_map( 'wc_clean', $_POST['mp_sellers_merchant_id'] );
-            $seller_merchant_keys           = array_map( 'wc_clean', $_POST['mp_sellers_merchant_key'] );
+            //$seller_merchant_keys           = array_map( 'wc_clean', $_POST['mp_sellers_merchant_key'] );
             $seller_percentuals             = array_map( 'wc_clean', $_POST['mp_sellers_percentual'] );
             $seller_days_to_pay             = array_map( 'wc_clean', $_POST['mp_sellers_days_to_pay'] );
             $seller_installment_payment     = array_map( 'wc_clean', $_POST['mp_sellers_installment_payment']);
@@ -628,7 +640,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
                 $sellers[] = array(
                     'seller_name'                => $seller_names[ $index ],
                     'seller_merchant_id'         => $seller_merchant_ids[ $index ],
-                    'seller_merchant_key'        => $seller_merchant_keys[ $index ],
+                    //'seller_merchant_key'        => $seller_merchant_keys[ $index ],
                     'seller_percentual'          => $seller_percentuals[ $index ],
                     'seller_days_to_pay'         => $seller_days_to_pay[ $index ],
                     'seller_installment_payment' => $seller_installment_payment[$index],

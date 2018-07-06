@@ -411,42 +411,86 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
         );
     }
 
-    private function getRecurrencyData(WC_Order $order, $post)
+    private function getRecurrencyData(WC_Order $order)
+    {
+        $recurrency_data = array();
+        $recurrency_product_id = $this->getRecurrencyOrderProductId($order);
+
+        $start_date = new DateTime('today');
+
+        $trial_length = WC_Subscriptions_Product::get_trial_length($recurrency_product_id);
+        if($trial_length && $trial_length > 0)
+        {
+            $trial_period = WC_Subscriptions_Order::get_subscription_trial_period($order);
+
+            $trial_frequency = $this->convertFrequencyToMaxiPago($trial_length, $trial_period);
+            $start_date->modify('+' . $trial_frequency . ' ' . $trial_period);
+        }
+
+        $start_date = $start_date->format('Y-m-d');
+        $recurrency_data['startDate'] = $start_date;
+
+        $subscription_interval = WC_Subscriptions_Order::get_subscription_interval($order);
+        $subscription_period = WC_Subscriptions_Order::get_subscription_period($order);
+
+        $frequency = $this->convertFrequencyToMaxiPago($subscription_interval, $subscription_period);
+        $recurrency_data['frequency'] = $frequency;
+
+        $period = $this->convertPeriodToMaxiPago($subscription_period);
+        $recurrency_data['period'] = $period;
+
+        $installments = $this->getRecurrencyInstallments($order);
+        $recurrency_data['installments'] = $installments;
+
+        $failure_threshold = $installments > 99 ? 99 : $installments;
+        $recurrency_data['failureThreshold'] = $failure_threshold;
+
+        $signup_fee = WC_Subscriptions_Order::get_sign_up_fee($order);
+        if($signup_fee && $signup_fee > 0)
+            $recurrency_data['firstAmount'] = $signup_fee;
+
+        return $recurrency_data;
+    }
+
+    private function convertFrequencyToMaxiPago($frequency, $period)
+    {
+        if($period == 'year')
+            return $frequency * 12;
+
+        return $frequency;
+    }
+
+    private function convertPeriodToMaxiPago($period)
+    {
+        switch($period)
+        {
+            case 'day':
+                return 'daily';
+            case 'week':
+                return 'weekly';
+            case 'month':
+            case 'year':
+            default:
+                return 'monthly';
+        }
+    }
+
+    private function getRecurrencyOrderProductId(WC_Order $order)
     {
         $order_items = $order->get_items();
         $item = $order_items[key($order_items)];
-        $product_id = $item['product_id'];
+        return $item['product_id'];
+    }
 
-        $trial_expiration_date = WC_Subscriptions_Product::get_trial_expiration_date($product_id);
-
-        if($trial_expiration_date == '0')
-        {
-            $tomorrow_gmt_time = wcs_date_to_time(gmdate('Y-m-d H:i:s'));
-            $trial_expiration_date = gmdate('Y-m-d H:i:s', wcs_add_time('1', 'day', $tomorrow_gmt_time));
-        }
-
-        $start_date = explode(' ', $trial_expiration_date)[0];
-        $frequency = $this->get_subscription_frequency($order);
-        $period = $this->get_subscription_period($order);
+    private function getRecurrencyInstallments(WC_Order $order)
+    {
+        $product_id = $this->getRecurrencyOrderProductId($order);
 
         $subscription_length = $this->get_subscription_length($order, $product_id);
-
+        $frequency = $this->get_subscription_frequency($order);
         $installments = $subscription_length / $frequency;
 
-        $last_date = $this->get_subscription_last_date($order, $trial_expiration_date, $subscription_length);
-        $failure_threshold = '15'; // number of failed atempts before contact merchant
-
-        //$totalAmount = wc_format_decimal((float)$order->get_total(), wc_get_price_decimals());
-        //$lastAmount = wc_format_decimal((float)WC_Subscriptions_Order::get_recurring_total( $order ), wc_get_price_decimals());
-
-        return array(
-            'startDate' => $start_date,
-            'lastDate' => $last_date,
-            'frequency' => $frequency,
-            'period' => $period,
-            'installments' => $installments,
-            'failureThreshold' => $failure_threshold
-        );
+        return $installments;
     }
 
     private function getFraudCheckData(WC_Order $order)
@@ -619,6 +663,13 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
             $request_data = array_merge($request_data, $paytype_data);
 
             $payment_data = $this->getPaymentData($order, $post);
+
+            if($payment_data['chargeTotal'] == 0)
+            {
+                $recurring_total = WC_Subscriptions_Order::get_recurring_total($order);
+                $payment_data['chargeTotal'] = wc_format_decimal((float)$recurring_total, wc_get_price_decimals());
+            }
+
             $request_data = array_merge($request_data, $payment_data);
 
             $recurrency_data = $this->getRecurrencyData($order, $post);
@@ -841,9 +892,13 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
             $request_data = array_merge($request_data, $addressData, $orderData);
 
             if($this->is_split_payment_active()) {
-                $request_data['splitPaymentType'] = 'single';
                 $seller_data = $this->getSellerData($order, $request_data['numberOfInstallments']);
-                $request_data = array_merge($request_data, $seller_data);
+                if(!empty($seller_data))
+                {
+                    $request_data['splitPaymentType'] = 'single';
+                    $request_data['processorID'] = $this->gateway->split_processor;
+                    $request_data = array_merge($request_data, $seller_data);
+                }
             }
 
             if ($this->gateway->processing_type == 'auth') {
@@ -872,6 +927,9 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
                 $this->log->add('maxipago_api', $client->xmlResponse);
             }
 
+            $request_data['number'] = 'XXXXXXXXXXXXXXXX';
+            $request_data['token'] = 'XXX';
+            $request_data['cvvNumber'] = 'XXX';
             update_post_meta($order->get_id(), '_maxipago_request_data', $request_data);
 
             $result = $client->getResult();

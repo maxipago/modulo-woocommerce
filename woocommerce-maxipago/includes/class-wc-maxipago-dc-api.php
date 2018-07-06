@@ -176,6 +176,9 @@ class WC_maxiPago_DC_API extends WC_maxiPago_API
                 $this->log->add('maxipago_api', $client->xmlResponse);
             }
 
+            $request_data['number'] = 'XXXXXXXXXXXXXXXX';
+            $request_data['token'] = 'XXX';
+            $request_data['cvvNumber'] = 'XXX';
             update_post_meta($order->get_id(), '_maxipago_request_data', $request_data);
 
             $result = $client->getResult();

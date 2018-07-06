@@ -500,6 +500,8 @@ abstract class WC_maxiPago_API
         $sellerData = array();
         $items = $order->get_items();
 
+        $orderTotal = (float) $order->get_total();
+
         $i = 0;
         /** @var WC_Order_Item $item */
         foreach ($items as $item) {
@@ -509,8 +511,11 @@ abstract class WC_maxiPago_API
 
             if($seller)
             {
+                $sellerPercentual = $seller['mdr'];
+                $orderSellerTotal = $sellerPercentual * $orderTotal;
+
                 $sellerData['sellerId' . $i] = $seller['merchant_id'];
-                $sellerData['sellerMDR' . $i] = $seller['mdr'];
+                $sellerData['sellerMDR' . $i] = wc_format_decimal($orderSellerTotal, wc_get_price_decimals());
                 $sellerData['sellerDaysToPay' . $i] = $seller['days_to_pay'];
                 $sellerData['sellerInstallments' . $i] = $number_of_installments;
 
