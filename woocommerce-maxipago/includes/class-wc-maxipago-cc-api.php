@@ -403,11 +403,13 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
     private function getPaymentData(WC_Order $order, $post)
     {
         $currency_code = get_woocommerce_currency();
-        $charge_total = wc_format_decimal((float)$order->get_total(), wc_get_price_decimals());
+        $charge_total = (float)$order->get_total();
+        $shipping_total = (float)$order->get_shipping_total();
 
         return array(
             'currencyCode' => $currency_code,
-            'chargeTotal' => $charge_total
+            'chargeTotal' => wc_format_decimal($charge_total, wc_get_price_decimals()),
+            'shippingTotal' => wc_format_decimal($shipping_total, wc_get_price_decimals())
         );
     }
 
@@ -670,6 +672,9 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
                 $payment_data['chargeTotal'] = wc_format_decimal((float)$recurring_total, wc_get_price_decimals());
             }
 
+            $shipping_total = wc_format_decimal((float)$order->get_shipping_total(), wc_get_price_decimals());
+            $payment_data['shippingTotal'] = $shipping_total;
+
             $request_data = array_merge($request_data, $payment_data);
 
             $recurrency_data = $this->getRecurrencyData($order, $post);
@@ -827,7 +832,9 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
             $cc_brand = $this->get_cc_brand($cc_number);
             $processor_id = $this->get_processor_id_by_cc_brand($cc_brand);
 
+            $shipping_total = (float)$order->get_shipping_total();
             $charge_total = (float)$order->get_total();
+
             $has_interest = 'N';
             if ($this->gateway->interest_rate && $cc_installments > $this->gateway->max_without_interest) {
                 $has_interest = 'Y';
@@ -844,6 +851,7 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
                 'customerIdExt' => $customer_document,
                 'currencyCode' => get_woocommerce_currency(),
                 'chargeTotal' => wc_format_decimal($charge_total, wc_get_price_decimals()),
+                'shippingTotal' => wc_format_decimal($shipping_total, wc_get_price_decimals()),
                 'numberOfInstallments' => $cc_installments,
                 'chargeInterest' => $has_interest
             );
@@ -893,6 +901,7 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
 
             if($this->is_split_payment_active()) {
                 $seller_data = $this->getSellerData($order, $request_data['numberOfInstallments']);
+
                 if(!empty($seller_data))
                 {
                     $request_data['splitPaymentType'] = 'single';
@@ -992,7 +1001,7 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
                     $data = array(
                         'orderID' => $result_data['orderID'],
                         'referenceNum' => $result_data['referenceNum'],
-                        'chargeTotal' => wc_format_decimal($order->get_total(), wc_get_price_decimals())
+                        'chargeTotal' => wc_format_decimal((float)$order->get_total(), wc_get_price_decimals())
                     );
                     $client->creditCardCapture($data);
                     if ($this->log) {
@@ -1047,10 +1056,14 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
                         $client->creditCardVoid($data);
                     } else {
                         if ($this->log) $this->log->add('maxipago_api', '------------- creditCardRefund -------------');
+                        $charge_total = (float)$order->get_total();
+                        $shipping_total = (float)$order->get_shipping_total();
+
                         $data = array(
                             'orderID' => $result_data['orderID'],
                             'referenceNum' => $result_data['referenceNum'],
-                            'chargeTotal' => wc_format_decimal($order->get_total(), wc_get_price_decimals()),
+                            'chargeTotal' => wc_format_decimal($charge_total, wc_get_price_decimals()),
+                            'shippingTotal' => wc_format_decimal($shipping_total, wc_get_price_decimals())
                         );
                         $client->creditCardRefund($data);
                     }
@@ -1249,7 +1262,8 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
                             'mdr' => ((float) $seller['seller_percentual']) / ((float) 100),
                             'days_to_pay' => $seller['seller_days_to_pay'],
                             'use_installment' => $seller['seller_installment_payment'] ? $seller['seller_installment_payment'] == 'on' : false,
-                            'installments_amount' => $seller['seller_installments_amount']
+                            'installments_amount' => $seller['seller_installments_amount'],
+                            'item_status' => $seller['seller_item_status']
                         );
                     }
                 }

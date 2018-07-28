@@ -553,6 +553,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
                                 <th><?php _e( 'Days to Pay', 'woocommerce-maxipago' ); ?></th>
                                 <th><?php _e( 'Pay with Installments', 'woocommerce-maxipago'); ?></th>
                                 <th><?php _e( 'Number of Installments', 'woocommerce-maxipago'); ?></th>
+                                <th><?php _e( 'Item Status', 'woocommerce-maxipago'); ?></th>
                             </tr>
                         </thead>
                         <tbody class="sellers">
@@ -562,13 +563,24 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
                                     foreach($this->sellers as $index => $seller) { ?>
                                         <tr class="seller">
                                             <td class="sort"></td>
-                                            <td><input required type="text" value="<?php echo esc_attr($seller['seller_name']); ?>" name="<?php echo 'mp_sellers_name[' . $index .']'; ?>" /></td>
-                                            <td><input required type="text" value="<?php echo esc_attr($seller['seller_merchant_id']); ?>" name="<?php echo 'mp_sellers_merchant_id[' . $index .']'; ?>" /></td>
+                                            <td style="border: 1px solid #dfdfdf;"><input required type="text" value="<?php echo esc_attr($seller['seller_name']); ?>" name="<?php echo 'mp_sellers_name[' . $index .']'; ?>" /></td>
+                                            <td style="border: 1px solid #dfdfdf;"><input required type="text" value="<?php echo esc_attr($seller['seller_merchant_id']); ?>" name="<?php echo 'mp_sellers_merchant_id[' . $index .']'; ?>" /></td>
                                             <?php /** <td><input required type="text" value="<?php echo esc_attr($seller['seller_merchant_key']); ?>" name="<?php echo 'mp_sellers_merchant_key[' . $index .']'; ?>" /></td> **/ ?>
-                                            <td><input required type="number" step="0.01" min="0.01" max="100" value="<?php echo esc_attr($seller['seller_percentual']); ?>" name="<?php echo 'mp_sellers_percentual[' . $index .']'; ?>" /></td>
-                                            <td><input required type="number" step="1" min="1" max="30" value="<?php echo esc_attr($seller['seller_days_to_pay']); ?>" name="<?php echo 'mp_sellers_days_to_pay[' . $index .']'; ?>" /></td>
-                                            <td><input data-index="<?php echo $index; ?>" class="seller_installment_payment_checkbox" type="checkbox" <?php echo $seller['seller_installment_payment'] == 'on'  ? 'checked' : ''; ?> name="<?php echo 'mp_sellers_installment_payment[' . $index .']'; ?>"/></td>
-                                            <td><input type="number" step="1" min="1" value="<?php echo esc_attr($seller['seller_installments_amount']); ?>" name="<?php echo 'mp_sellers_installments_amount[' . $index .']'; ?>" id="<?php echo 'mp_sellers_installments_amount_' . $index; ?>" <?php echo $seller['seller_installment_payment'] == 'on' ? '' : 'disabled'; ?>/></td>
+                                            <td style="border: 1px solid #dfdfdf;"><input required type="number" step="0.01" min="0.01" max="100" value="<?php echo esc_attr($seller['seller_percentual']); ?>" name="<?php echo 'mp_sellers_percentual[' . $index .']'; ?>" /></td>
+                                            <td style="border: 1px solid #dfdfdf;"><input required type="number" step="1" min="1" max="30" value="<?php echo esc_attr($seller['seller_days_to_pay']); ?>" name="<?php echo 'mp_sellers_days_to_pay[' . $index .']'; ?>" /></td>
+                                            <td style="border: 1px solid #dfdfdf;"><input data-index="<?php echo $index; ?>" class="seller_installment_payment_checkbox" type="checkbox" <?php echo $seller['seller_installment_payment'] == 'on'  ? 'checked' : ''; ?> name="<?php echo 'mp_sellers_installment_payment[' . $index .']'; ?>"/></td>
+                                            <td style="border: 1px solid #dfdfdf;"><input type="number" step="1" min="1" value="<?php echo esc_attr($seller['seller_installments_amount']); ?>" name="<?php echo 'mp_sellers_installments_amount[' . $index .']'; ?>" id="<?php echo 'mp_sellers_installments_amount_' . $index; ?>" <?php echo $seller['seller_installment_payment'] == 'on' ? '' : 'disabled'; ?>/></td>
+                                            <td style="border: 1px solid #dfdfdf;">
+                                                <?php
+                                                if(!isset($seller['seller_item_status']) || empty($seller['seller_item_status']))
+                                                    $seller['seller_item_status'] = 'pending';
+                                                ?>
+                                                <select name="<?php echo 'mp_sellers_item_status[' . $index . ']' ?>" id="<?php echo 'mp_sellers_item_status[' . $index . ']' ?>">
+                                                    <option value="pending" <?php echo esc_attr($seller['seller_item_status']) == 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                                    <option value="denied" <?php echo esc_attr($seller['seller_item_status']) == 'denied' ? 'selected' : ''; ?>>Denied</option>
+                                                    <option value="approved" <?php echo esc_attr($seller['seller_item_status']) == 'approved' ? 'selected' : ''; ?>>Approved</option>
+                                                </select>
+                                            </td>
                                         </tr>
                                     <?php
                                     }
@@ -587,15 +599,17 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
 
                                 var size = jQuery('#maxipago_sellers').find('tbody .seller').length;
 
+                                <?php /** <td><input required type="text" name="mp_sellers_merchant_key[' + size + ']" /></td>\ **/ ?>
+
                                 jQuery('<tr class="seller">\
-									<td class="sort"></td>\
-									<td><input required type="text" name="mp_sellers_name[' + size + ']" /></td>\
-									<td><input required type="text" name="mp_sellers_merchant_id[' + size + ']" /></td>\
-									<td><input required type="text" name="mp_sellers_merchant_key[' + size + ']" /></td>\
-									<td><input required type="number" step="0.01" min="0.01" max="100" name="mp_sellers_percentual[' + size + ']" value="0.01"/></td>\
-									<td><input required type="number" step="1" min="0" max="30" name="mp_sellers_days_to_pay[' + size + ']" value="1"/></td>\
-									<td><input data-index="' + size + '" class="seller_installment_payment_checkbox" type="checkbox" name="mp_sellers_installment_payment[' + size + ']"/></td>\
-									<td><input type="number" min="1" step="1" disabled name="mp_sellers_installments_amount[' + size + ']" id="mp_sellers_installments_amount_' + size + '"/></td>\
+									<td style="border: 1px solid #dfdfdf;" class="sort"></td>\
+									<td style="border: 1px solid #dfdfdf;"><input required type="text" name="mp_sellers_name[' + size + ']" /></td>\
+									<td style="border: 1px solid #dfdfdf;"><input required type="text" name="mp_sellers_merchant_id[' + size + ']" /></td>\
+									<td style="border: 1px solid #dfdfdf;"><input required type="number" step="0.01" min="0.01" max="100" name="mp_sellers_percentual[' + size + ']" value="0.01"/></td>\
+									<td style="border: 1px solid #dfdfdf;"><input required type="number" step="1" min="0" max="30" name="mp_sellers_days_to_pay[' + size + ']" value="1"/></td>\
+									<td style="border: 1px solid #dfdfdf;"><input data-index="' + size + '" class="seller_installment_payment_checkbox" type="checkbox" name="mp_sellers_installment_payment[' + size + ']"/></td>\
+									<td style="border: 1px solid #dfdfdf;"><input type="number" min="1" step="1" disabled name="mp_sellers_installments_amount[' + size + ']" id="mp_sellers_installments_amount_' + size + '"/></td>\
+									<td style="border: 1px solid #dfdfdf;"><select name="mp_sellers_item_status[\' + size + \']" id="mp_sellers_item_status\' + size + \'"><option value="pending" selected>Pending</option><option value="denied">Denied</option><option>Approved</option></select></td>\
 								</tr>').appendTo('#maxipago_sellers table tbody');
 
                                 bindCheckboxClick();
@@ -631,6 +645,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
             $seller_days_to_pay             = array_map( 'wc_clean', $_POST['mp_sellers_days_to_pay'] );
             $seller_installment_payment     = array_map( 'wc_clean', $_POST['mp_sellers_installment_payment']);
             $seller_installments_amount     = array_map( 'wc_clean', $_POST['mp_sellers_installments_amount']);
+            $seller_item_status             = array_map( 'wc_clean', $_POST['mp_sellers_item_status']);
 
             foreach ( $seller_names as $index => $name ) {
                 if ( ! isset( $seller_names[ $index ] ) ) {
@@ -644,7 +659,8 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
                     'seller_percentual'          => $seller_percentuals[ $index ],
                     'seller_days_to_pay'         => $seller_days_to_pay[ $index ],
                     'seller_installment_payment' => $seller_installment_payment[$index],
-                    'seller_installments_amount'  => $seller_installments_amount[$index]
+                    'seller_installments_amount' => $seller_installments_amount[$index],
+                    'seller_item_status'         => $seller_item_status[$index]
                 );
             }
         }
@@ -874,7 +890,10 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC
                     // Here, we change it locally to on-hold ....
                     $order->set_status('on-hold');
                     // ... so we can call api->capture_order()
-                    $this->api->capture_order($order);
+                    if(!$this->api->capture_order($order)) {
+                        $order->update_status('on-hold', __('maxiPago!: An error has occurred while capturing your payment.', 'woocommerce-maxipago'));
+                    }
+
                 }
             }
         }

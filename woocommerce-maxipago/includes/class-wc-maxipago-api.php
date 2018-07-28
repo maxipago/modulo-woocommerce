@@ -521,6 +521,8 @@ abstract class WC_maxiPago_API
 
                 if($seller['use_installment'])
                     $sellerData['sellerInstallments' . $i] = $seller['installments_amount'];
+
+                $sellerData['sellerItemStatus' .$i] = $seller['item_status'];
             }
         }
 

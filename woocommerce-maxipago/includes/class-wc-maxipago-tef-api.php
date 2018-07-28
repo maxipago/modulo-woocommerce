@@ -40,6 +40,9 @@ class WC_maxiPago_TEF_API extends WC_maxiPago_API
             $customer_document = $post['maxipago_tef_document'];
             $tef_bank = $post['maxipago_tef_bank_code'];
 
+            $charge_total = (float)$order->get_total();
+            $shipping_total = (float)$order->get_shipping_total();
+
             $ipAddress = $this->clean_ip_address($order->get_customer_ip_address());
 
             $request_data = array(
@@ -47,7 +50,8 @@ class WC_maxiPago_TEF_API extends WC_maxiPago_API
                 'processorID' => $tef_bank,
                 'ipAddress' => $ipAddress,
                 'customerIdExt' => $customer_document,
-                'chargeTotal' => wc_format_decimal($order->get_total(), wc_get_price_decimals()),
+                'chargeTotal' => wc_format_decimal($charge_total, wc_get_price_decimals()),
+                'shippingTotal' => wc_format_decimal($shipping_total, wc_get_price_decimals()),
                 'parametersURL' => '',
             );
 

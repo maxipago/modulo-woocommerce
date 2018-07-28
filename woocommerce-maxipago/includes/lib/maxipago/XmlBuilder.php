@@ -568,6 +568,11 @@ class maxiPago_XmlBuilder extends maxiPago_RequestBase
                     $item->addChild("sellerInstallments", $this->$sellerInstallments);
                 }
 
+                $sellerItemStatus = 'sellerItemStatus' . $i;
+                if(isset($this->$sellerItemStatus) && strlen($this->$sellerItemStatus) > 0) {
+                    $item->addChild('itemStatus', $this->$sellerItemStatus);
+                }
+
                 $i++;
                 $itemIndex = 'itemIndex' . $i;
 

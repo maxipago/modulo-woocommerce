@@ -130,6 +130,10 @@ class WC_maxiPago_Cron
                         $state = isset($response[0]['transactionState']) ? $response[0]['transactionState'] : null;
                         if ($state) {
                             if ($this->set_order_status($order_id, $state)) {
+                                if($this->orderWasCaptured($state)) {
+                                    update_post_meta($order->get_id(), '_maxipago_capture_result_data', $response);
+                                }
+
                                 if ($this->log) $this->log->add('maxipago_api', '[' . $method_id . '] Update Order Status: ' . $settings['invoice_prefix'] . $order_id);
                             }
                         }
@@ -137,6 +141,17 @@ class WC_maxiPago_Cron
                 }
             }
         }
+    }
+
+    public function orderWasCaptured($orderState)
+    {
+        $validStatus = array(
+            self::$transaction_states['Captured'],
+            self::$transaction_states['Paid'],
+            self::$transaction_states['Boleto Overpaid']
+        );
+
+        return in_array($orderState, $validStatus);
     }
 
     public function set_order_status($order_id, $status)
@@ -158,8 +173,7 @@ class WC_maxiPago_Cron
                         return true;
                     case $states['Boleto Overpaid']:
                         $order->payment_complete();
-                        $status = $order->get_status();
-                        $order->update_status($status, __('maxiPago!: Boleto pago com valor acima.', 'woocommerce-maxipago'));
+                        $order->add_order_note(__('maxiPago!: Boleto pago com valor acima.', 'woocommerce-maxipago'));
                         return true;
                     case $states['Boleto Underpaid']:
                         $status = $order->get_status();

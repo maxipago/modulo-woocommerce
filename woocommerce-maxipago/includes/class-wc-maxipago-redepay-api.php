@@ -38,12 +38,16 @@ class WC_maxiPago_RedePay_API extends WC_maxiPago_API
 
             $ipAddress = $this->clean_ip_address($order->get_customer_ip_address());
 
+            $charge_total = (float)$order->get_total();
+            $shipping_total = (float)$order->get_shipping_total();
+
+
             $request_data = array(
                 'referenceNum' => $this->gateway->invoice_prefix . $order->get_id(),
                 'processorID' => '18',
                 'ipAddress' => $ipAddress,
-                'chargeTotal' => wc_format_decimal($order->get_total(), wc_get_price_decimals()),
-                'shippingTotal' => wc_format_decimal($order->get_shipping_total(), wc_get_price_decimals()),
+                'chargeTotal' => wc_format_decimal($charge_total, wc_get_price_decimals()),
+                'shippingTotal' => wc_format_decimal($shipping_total, wc_get_price_decimals()),
                 'parametersURL' => 'type=redepay',
             );
 

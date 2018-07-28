@@ -136,6 +136,8 @@ class WC_maxiPago_DC_API extends WC_maxiPago_API
             $processor_id = $this->get_processor_id_by_cc_brand($cc_brand);
 
             $charge_total = (float)$order->get_total();
+            $shipping_total = (float)$order->get_shipping_total();
+
             $ipAddress = $this->clean_ip_address($order->get_customer_ip_address());
 
             $request_data = array(
@@ -144,7 +146,8 @@ class WC_maxiPago_DC_API extends WC_maxiPago_API
                 'ipAddress' => $ipAddress,
                 'customerIdExt' => $customer_document,
                 'currencyCode' => get_woocommerce_currency(),
-                'chargeTotal' => wc_format_decimal($charge_total, wc_get_price_decimals())
+                'chargeTotal' => wc_format_decimal($charge_total, wc_get_price_decimals()),
+                'shippingTotal' => wc_format_decimal($shipping_total, wc_get_price_decimals())
             );
 
             $request_data['number'] = $cc_number;

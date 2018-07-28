@@ -41,13 +41,17 @@ class WC_maxiPago_Ticket_API extends WC_maxiPago_API
 
             $customer_document = $post['maxipago_ticket_document'];
 
+            $charge_total = (float)$order->get_total();
+            $shipping_total = (float)$order->get_shipping_total();
+
             $request_data = array(
                 'referenceNum' => $this->gateway->invoice_prefix . $order->get_id(),
                 'processorID' => $this->gateway->bank,
                 'ipAddress' => $ipAddress,
                 'customerIdExt' => $customer_document,
 
-                'chargeTotal' => wc_format_decimal($order->get_total(), wc_get_price_decimals()),
+                'chargeTotal' => wc_format_decimal($charge_total, wc_get_price_decimals()),
+                'shippingTotal' => wc_format_decimal($shipping_total, wc_get_price_decimals()),
                 'number' => $order->get_id(),
                 'expirationDate' => $expiration_date,
                 'instructions' => $this->gateway->instructions,
