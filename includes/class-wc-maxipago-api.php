@@ -511,11 +511,8 @@ abstract class WC_maxiPago_API
 
             if($seller)
             {
-                $sellerPercentual = $seller['mdr'];
-                $orderSellerTotal = $sellerPercentual * $orderTotal;
-
                 $sellerData['sellerId' . $i] = $seller['merchant_id'];
-                $sellerData['sellerMDR' . $i] = wc_format_decimal($orderSellerTotal, wc_get_price_decimals());
+                $sellerData['sellerMDR' . $i] = $seller['mdr'];
                 $sellerData['sellerDaysToPay' . $i] = $seller['days_to_pay'];
                 $sellerData['sellerInstallments' . $i] = $number_of_installments;
 
