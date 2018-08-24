@@ -959,6 +959,12 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
                             update_post_meta($order->get_id(), 'maxipago_fraud_score', $client->getFraudScore());
                         }
 
+                        if($this->gateway->processing_type == 'sale')
+                        {
+                            update_post_meta($order->get_id(), '_maxipago_capture_result_data', $result);
+                            update_post_meta($order->get_id(), 'responseMessage', 'CAPTURED');
+                        }
+
                         $this->updatePostMeta($order->get_id(), $result);
                     }
                     $updated = $this->set_order_status(
@@ -1010,9 +1016,10 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API
                         $this->log->add('maxipago_api', $client->xmlResponse);
                     }
                     $result = $client->getResult();
-                    update_post_meta($order->get_id(), '_maxipago_capture_result_data', $result);
                     if (!$client->isErrorResponse() && $client->getResponseCode() == 0) {
                         $order->payment_complete();
+                        update_post_meta($order->get_id(), '_maxipago_capture_result_data', $result);
+                        update_post_meta($order->get_id(), 'responseMessage', 'CAPTURED');
                         $message = sprintf(__('Payment captured successfully - User: %s', 'woocommerce-maxipago'), wp_get_current_user()->display_name);
                         set_transient('maxipago_admin_notice', array($message, 'notice'), 5);
                         return true;

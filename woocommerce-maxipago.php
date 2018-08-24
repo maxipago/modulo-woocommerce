@@ -5,7 +5,7 @@
  * Description: <strong>Oficial</strong> Plugin for maxiPago! Smart Payments.
  * Author: maxiPago! Smart Payments
  * Author URI: http://www.maxipago.com/
- * Version: 0.3.12
+ * Version: 0.3.13
  * License: GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: woocommerce-maxipago
@@ -23,7 +23,7 @@ if (!class_exists('WC_maxiPago')) {
     class WC_maxiPago
     {
 
-        const VERSION = '0.3.12';
+        const VERSION = '0.3.13';
 
         protected static $instance = null;
         protected $log = false;
@@ -286,6 +286,22 @@ if (!class_exists('WC_maxiPago')) {
                                 if ($state) {
                                     $cron = new WC_maxiPago_Cron();
                                     $cron->set_order_status($order->get_id(), $state);
+
+                                    $valid_statuses = array(
+                                        WC_maxiPago_Cron::$transaction_states['Captured'],
+                                        WC_maxiPago_Cron::$transaction_states['Paid'],
+                                        WC_maxiPago_Cron::$transaction_states['Boleto Overpaid']
+                                    );
+
+                                    if(in_array($state, $valid_statuses)) {
+                                        update_post_meta($order->get_id(), '_maxipago_capture_result_data',$response);
+                                        update_post_meta($order->get_id(), 'responseMessage','CAPTURED');
+                                    }
+
+                                    $firstResponse = $response[0];
+                                    foreach ($firstResponse as $key => $value) {
+                                        update_post_meta($order->get_id(), $key, $value);
+                                    }
 
                                     if ($this->log)
                                         $this->log->add('maxipago_api', '[maxipago - IPN] Update Order Status to: ' . $state);

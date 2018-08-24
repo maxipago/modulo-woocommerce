@@ -6,7 +6,7 @@ class WC_maxiPago_Cron
     /** @var WC_Logger */
     protected $log;
 
-    private static $transaction_states = array(
+    public static $transaction_states = array(
         'In Progress' => 1,
         'Captured' => 3,
         'Pending Capture' => 4,
@@ -132,9 +132,15 @@ class WC_maxiPago_Cron
                             if ($this->set_order_status($order_id, $state)) {
                                 if($this->orderWasCaptured($state)) {
                                     update_post_meta($order->get_id(), '_maxipago_capture_result_data', $response);
+                                    update_post_meta($order->get_id(), 'responseMessage', 'CAPTURED');
                                 }
 
                                 if ($this->log) $this->log->add('maxipago_api', '[' . $method_id . '] Update Order Status: ' . $settings['invoice_prefix'] . $order_id);
+
+                                $firstResponse = $response[0];
+                                foreach ($firstResponse as $key => $value) {
+                                    update_post_meta($order->get_id(), $key, $value);
+                                }
                             }
                         }
                     }
