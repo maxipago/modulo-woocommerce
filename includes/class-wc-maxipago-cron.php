@@ -94,7 +94,9 @@ class WC_maxiPago_Cron
             if ('yes' == $settings['save_log'] && class_exists('WC_Logger')) {
                 $this->log = new WC_Logger();
             }
-            $this->log->add('maxipago_api', '----------- Run CRON Update Order Status: ' . $method_id . ' ----------- ' . PHP_EOL);
+            if($this->log) {
+                $this->log->add('maxipago_api', '----------- Run CRON Update Order Status: ' . $method_id . ' ----------- ' . PHP_EOL);
+            }
             $client = new maxiPago;
             $client->setCredentials($settings['merchant_id'], $settings['merchant_key']);
             $client->setEnvironment($settings['environment']);
@@ -113,7 +115,10 @@ class WC_maxiPago_Cron
                     $result_data = get_post_meta($order_id, '_maxipago_result_data', true);
                     if ($result_data && isset($result_data['orderID'])) {
                         if(strlen($result_data['orderID']) == 0) {
-                            $this->log('CRON Update [' . $method_id . ']: "strlen(orderID) == 0" for order [' . $order->get_id() . ']');
+                            if($this->log)
+                            {
+                                $this->log->add('maxipago_api', 'CRON Update [' . $method_id . ']: "strlen(orderID) == 0" for order [' . $order->get_id() . ']');
+                            }
                             continue;
                         }
 
