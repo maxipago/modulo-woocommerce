@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) {
 abstract class WC_maxiPago_API
 {
 
+    const DEFAULT_IP_ADDRESS = '127.0.0.1';
+
     /** @var WC_Logger */
     public $log = false;
     public $gateway = null;
@@ -374,13 +376,11 @@ abstract class WC_maxiPago_API
 
     public function clean_ip_address($ipAddress)
     {
-        if (strpos($ipAddress, ':') !== false) {
-            $ipAddress = str_replace(array('http://', 'https://'), '', $ipAddress);
-            $ipAddress = explode(':', $ipAddress);
-            $ipAddress = $ipAddress[0];
+        if (filter_var($ipAddress, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+            return $ipAddress;
         }
 
-        return $ipAddress;
+        return WC_maxiPago_API::DEFAULT_IP_ADDRESS;
     }
 
     public function getAddressData(WC_Order $order, $documentNumber = '')

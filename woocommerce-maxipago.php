@@ -5,7 +5,7 @@
  * Description: <strong>Oficial</strong> Plugin for maxiPago! Smart Payments.
  * Author: maxiPago! Smart Payments
  * Author URI: http://www.maxipago.com/
- * Version: 0.3.14
+ * Version: 0.3.15
  * License: GPL2
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: woocommerce-maxipago
@@ -23,7 +23,7 @@ if (!class_exists('WC_maxiPago')) {
     class WC_maxiPago
     {
 
-        const VERSION = '0.3.14';
+        const VERSION = '0.3.15';
 
         protected static $instance = null;
         protected $log = false;
