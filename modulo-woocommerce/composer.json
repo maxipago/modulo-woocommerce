@@ -1,0 +1,14 @@
+{
+  "name": "maxipago/modulo-woocommerce",
+  "version": "1.0.0",
+  "description": "Módulo de integração com a maxiPago!",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "require": {
+    "php": ">=7.3",
+    "ext-curl": "*",
+    "ext-xml": "*",
+    "psr/log": "^1.1"
+  }
+}
+

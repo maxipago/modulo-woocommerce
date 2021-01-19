@@ -1,0 +1,33 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:5.6
+    container_name: "maxipago.wordpress-mysql"
+    environment:
+      - MYSQL_ROOT_PASSWORD=wordpress
+      - MYSQL_DATABASE=wordpress
+      - MYSQL_USER=wordpress
+      - MYSQL_PASSWORD=wordpress
+    networks:
+      - userede
+    volumes:
+      - ./mysql:/var/lib/mysql:z
+    ports:
+      - "3306:3306"
+
+  php:
+    image: wordpress:5.6
+    build: .
+    container_name: "maxipago.wordpress-platform"
+    ports:
+      - "80:80"
+    links:
+      - mysql
+    networks:
+      - userede
+    volumes:
+      - ./modulo-woocommerce:/var/www/html/wp-content/plugins/modulo-woocommerce:z
+
+networks:
+  userede:
+    driver: bridge
