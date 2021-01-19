@@ -17,7 +17,7 @@ Esse módulo foi testado até o WordPress 5.6 e WooCommerce 4.9. Esse módulo su
 
 ## Requisitos
 
-Os requisitos desse módulo são os mesmos requisitos do próprio WooCommerce e, por motivos de segurança, o PHP >= .3. Ou seja,
+Os requisitos desse módulo são os mesmos requisitos do próprio WooCommerce e, por motivos de segurança, o PHP >= 7.3. Ou seja,
 se o WordPress suportar o WooCommerce 4.9 e o servidor possuir o PHP >= 7.3, ele suportará o módulo.
 
 # Instalação
