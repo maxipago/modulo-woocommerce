@@ -16,11 +16,8 @@ class WC_maxiPago_DC_Gateway extends WC_Payment_Gateway_CC {
 	public $invoice_prefix;
 	public $save_log;
 	public $soft_descriptor;
-	public $interest_rate_caculate_method;
 	public $mpi_processor;
 	public $failure_action;
-	public $acquirers_visa;
-	public $acquirers_mastercard;
 
 	public $supports = array( 'products', 'refunds' );
 
@@ -41,11 +38,8 @@ class WC_maxiPago_DC_Gateway extends WC_Payment_Gateway_CC {
 		$this->save_log       = $this->get_option( 'save_log' );
 
 		// DC Settings
-		$this->soft_descriptor      = $this->get_option( 'soft_descriptor' );
-		$this->acquirers_visa       = $this->get_option( 'acquirers_visa' );
-		$this->acquirers_mastercard = $this->get_option( 'acquirers_mastercard' );
-
-		$this->api = new WC_maxiPago_DC_API( $this );
+		$this->soft_descriptor = $this->get_option( 'soft_descriptor' );
+		$this->api             = new WC_maxiPago_DC_API( $this );
 
 		$this->init_form_fields();
 		$this->init_settings();
@@ -167,29 +161,6 @@ class WC_maxiPago_DC_Gateway extends WC_Payment_Gateway_CC {
 				'class'       => 'wc-enhanced-select',
 				'default'     => '',
 				'options'     => $this->api->get_mpi_action()
-			),
-
-			'acquirers' => array(
-				'title'       => 'Adquirentes',
-				'type'        => 'title',
-				'description' => 'Adquirentes que processarão os pagamentos'
-			),
-
-			'acquirers_visa'       => array(
-				'title'    => 'Visa',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer()
-			),
-			'acquirers_mastercard' => array(
-				'title'    => 'MasterCard',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer()
 			)
 		);
 	}

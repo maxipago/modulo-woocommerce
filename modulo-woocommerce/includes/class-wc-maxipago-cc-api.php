@@ -13,8 +13,9 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
 		}
 		$html              .= '<select id="maxipago-installments" name="maxipago_installments" style="font-size: 1.5em; padding: 4px; width: 100%;">';
 		$intallment_values = $this->get_installments( $order_total );
+
 		for ( $i = 1; $i <= $installments; $i ++ ) {
-			$total                = $order_total / $i;
+			$total                = ceil( ( $order_total / $i ) * 100 ) / 100;
 			$credit_interest      = '';
 			$min_per_installments = ( WC_maxiPago_CC_Gateway::MIN_PER_INSTALLMENT <= $this->gateway->min_per_installments )
 				? $this->gateway->min_per_installments : WC_maxiPago_CC_Gateway::MIN_PER_INSTALLMENT;
@@ -81,8 +82,9 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
 			$interest_rate = (float) ( str_replace( ',', '.', $interest_rate ) ) / 100;
 			switch ( $type ) {
 				case 'price':
-					$value = round( $price * ( ( $interest_rate * pow( ( 1 + $interest_rate ), $installments ) ) /
-					                           ( pow( ( 1 + $interest_rate ), $installments ) - 1 ) ), 2 );
+					$value = ceil( ( $price * ( ( $interest_rate * pow( ( 1 + $interest_rate ),
+											$installments ) ) / ( pow( ( 1 + $interest_rate ),
+											$installments ) - 1 ) ) ) * 100 ) / 100;
 					break;
 				case 'compound':
 					$value = ( $price * pow( 1 + $interest_rate, $installments ) ) / $installments;
@@ -92,7 +94,7 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
 			}
 		} else {
 			if ( $installments ) {
-				$value = $price / $installments;
+				$value = ceil( ( $price / $installments ) * 100 ) / 100;
 			}
 		}
 
@@ -702,7 +704,9 @@ class WC_maxiPago_CC_API extends WC_maxiPago_API {
 
 	public function refund_order( WC_Order $order ) {
 		$message = __( 'The order does not allow refund.', 'modulo-woocommerce' );
-		if ( $order->get_payment_method() == WC_maxiPago_CC_Gateway::ID && $order->get_status() == 'processing' ) {
+		$status  = $order->get_status();
+
+		if ( $order->get_payment_method() == WC_maxiPago_CC_Gateway::ID && ( $status == 'processing' || $status == 'on-hold' ) ) {
 			$cc_settings = get_option( 'woocommerce_maxipago-cc_settings' );
 			if ( is_array( $cc_settings ) ) {
 				if ( 'yes' == $cc_settings['save_log'] && class_exists( 'WC_Logger' ) ) {

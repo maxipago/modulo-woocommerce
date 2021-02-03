@@ -30,21 +30,11 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC {
 	public $interest_rate;
 	public $max_without_interest;
 	public $min_per_installments;
-	public $use3DS;
-	public $mpi_processor;
-	public $failure_action;
 	public $fraud_check;
 	public $auto_capture;
 	public $auto_void;
 	public $fraud_processor;
 	public $processing_type;
-	public $acquirers_visa;
-	public $acquirers_mastercard;
-	public $acquirers_amex;
-	public $acquirers_diners;
-	public $acquirers_elo;
-	public $acquirers_discover;
-	public $acquirers_hipercard;
 	public $use_token;
 
 	public $supports = array(
@@ -79,18 +69,8 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC {
 		$this->auto_capture                  = $this->get_option( 'auto_capture' );
 		$this->auto_void                     = $this->get_option( 'auto_void' );
 		$this->fraud_processor               = $this->get_option( 'fraud_processor' );
-		$this->mpi_processor                 = $this->get_option( 'mpi_processor' );
-		$this->failure_action                = $this->get_option( 'failure_action' );
 		$this->processing_type               = $this->get_option( 'processing_type' );
-
-		$this->acquirers_visa       = $this->get_option( 'acquirers_visa' );
-		$this->acquirers_mastercard = $this->get_option( 'acquirers_mastercard' );
-		$this->acquirers_amex       = $this->get_option( 'acquirers_amex' );
-		$this->acquirers_diners     = $this->get_option( 'acquirers_diners' );
-		$this->acquirers_elo        = $this->get_option( 'acquirers_elo' );
-		$this->acquirers_discover   = $this->get_option( 'acquirers_discover' );
-		$this->acquirers_hipercard  = $this->get_option( 'acquirers_hipercard' );
-		$this->use_token            = $this->get_option( 'use_token' );
+		$this->use_token                     = $this->get_option( 'use_token' );
 
 		if ( $this->use_token == 'yes' ) {
 			$this->supports[] = 'tokenization';
@@ -318,124 +298,6 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC {
 				'type'    => 'checkbox',
 				'label'   => 'Habilita cancelamento automático quanto for para análise de fraude',
 				'default' => 'yes'
-			),
-			'use3DS'                        => array(
-				'title'   => '3DS',
-				'type'    => 'checkbox',
-				'label'   => 'Habilitar 3DS',
-				'default' => 'no'
-			),
-			'mpi_processor'                 => array(
-				'title'       => 'MPI',
-				'type'        => 'select',
-				'description' => '',
-				'class'       => 'wc-enhanced-select',
-				'default'     => '',
-				'options'     => $this->api->get_mpi_processors()
-			),
-
-			'failure_action' => array(
-				'title'       => 'Ação em caso de falha',
-				'type'        => 'select',
-				'description' => '',
-				'class'       => 'wc-enhanced-select',
-				'default'     => '',
-				'options'     => $this->api->get_mpi_action()
-			),
-
-			'acquirers' => array(
-				'title'       => 'Adquirentes',
-				'type'        => 'title',
-				'description' => 'Adquirentes que processarão os pagamentos'
-			),
-
-			'acquirers_visa'       => array(
-				'title'    => 'Visa',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer()
-			),
-			'acquirers_mastercard' => array(
-				'title'    => 'MasterCard',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer()
-			),
-			'acquirers_amex'       => array(
-				'title'    => 'Amex (American Express)',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer( 'amex' )
-			),
-			'acquirers_diners'     => array(
-				'title'    => 'Diners Club',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer( 'diners' )
-			),
-			'acquirers_elo'        => array(
-				'title'    => 'Elo',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer( 'elo' )
-			),
-			'acquirers_discover'   => array(
-				'title'    => 'Discover',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer( 'discover' )
-			),
-			'acquirers_hipercard'  => array(
-				'title'    => 'Hipercard',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer( 'hipercard' )
-			),
-			'acquirers_hiper'      => array(
-				'title'    => 'Hiper',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer( 'hiper' )
-			),
-			'acquirers_jcb'        => array(
-				'title'    => 'JCB',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer( 'jcb' )
-			),
-			'acquirers_aura'       => array(
-				'title'    => 'Aura',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer( 'aura' )
-			),
-			'acquirers_credz'      => array(
-				'title'    => 'Credz',
-				'type'     => 'select',
-				'desc_tip' => true,
-				'class'    => 'wc-enhanced-select',
-				'default'  => '',
-				'options'  => $this->api->get_processor_by_acquirer( 'credz' )
 			)
 		);
 	}
@@ -580,17 +442,31 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC {
 
 		if ( $order_payment_method && $order_payment_method == self::ID ) {
 			// Then, we must check if the order status was changed to cancelled or refunded
-			$order = wc_get_order( $order_id );
-			if ( $order->get_status() == 'cancelled' || $order->get_status() == 'refunded' ) {
+			$order  = wc_get_order( $order_id );
+			$status = $order->get_status();
+
+			if ( $status == 'cancelled' || $status == 'refunded' ) {
 				// But, before we call the api, we must check if this order isn't already cancelled/refunded on maxiPago
+				// and see when was the last call to avoid trying to cancel twice
 				$order_already_refunded_or_cancelled = get_post_meta( $order_id, '_maxipago_refund_result_data', true );
+				$order_canceled_time                 = get_post_meta( $order_id, '_order_canceled_time', true );
+
+				if ( ! empty( $order_canceled_time ) && time() - $order_canceled_time < 60 ) {
+					return;
+				}
 
 				if ( ! $order_already_refunded_or_cancelled ) {
 					// In the database, the order status was updated to the new status 'cancelled' or 'refunded'.
 					// Here, we change it locally to processing ....
 					$order->set_status( 'processing' );
+
+					// last time we called the api
+					update_post_meta( $order_id, '_order_canceled_time', time() );
+
 					// ... so we can call api->refund_order()
-					$this->api->refund_order( $order );
+					if ( $this->api->refund_order( $order ) ) {
+						$order->update_status( $status, 'Pedido cancelado/reembolsado com sucesso' );
+					}
 				}
 			}
 		}
@@ -606,19 +482,30 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC {
 			$order = wc_get_order( $order_id );
 			if ( $order->get_status() == 'processing' ) {
 				// Before we call the api, we must check if this order isn't already captured on maxiPago
+				// and see when was the last call to avoid trying to capture twice
 				$order_already_captured = get_post_meta( $order_id, '_maxipago_capture_result_data', true );
+				$order_capture_time     = get_post_meta( $order_id, '_order_capture_time', true );
+
+				if ( ! empty( $order_capture_time ) && time() - $order_capture_time < 60 ) {
+					return;
+				}
+
 				if ( ! $order_already_captured || $order_already_captured['responseMessage'] != 'CAPTURED' ) {
 					// In the database, the order status was updated to the 'pending' status.
 					// Here, we change it locally to on-hold ....
 					$order->set_status( 'on-hold' );
+
+					// last time we called the api
+					update_post_meta( $order_id, '_order_capture_time', time() );
+
 					// ... so we can call api->capture_order()
 					if ( ! $this->api->capture_order( $order ) ) {
 						$order->update_status( 'on-hold', 'Um erro ocorreu ao capturar o pagamento' );
+					} else {
+						$order->update_status( 'completed', 'Pedido capturado com sucesso' );
 					}
-
 				}
 			}
 		}
 	}
-
 }
