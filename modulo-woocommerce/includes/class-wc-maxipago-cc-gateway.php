@@ -131,7 +131,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC {
 				'type'        => 'text',
 				'description' => 'Exibido na hora do pagamento',
 				'desc_tip'    => true,
-				'default'     => 'Boleto'
+				'default'     => 'Cartão de crédito'
 			),
 			'description' => array(
 				'title'       => 'Descrição',
