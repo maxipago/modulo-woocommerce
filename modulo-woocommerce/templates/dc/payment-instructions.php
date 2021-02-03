@@ -6,11 +6,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 <div class="woocommerce-message">
 	<span>
         <a class="button" href="<?php echo $url; ?>" target="_blank"
-           style="display: block !important; visibility: visible !important;">
-            <?php _e( 'Pay the Order', 'modulo-woocommerce' ); ?>
+           style="display: block !important; visibility: visible !important;">Pagar
         </a>
-        <?php _e( 'Please click in the following button to pay your Order.', 'modulo-woocommerce' ); ?>
+        Por favor, clique no link a seguir para pagar seu pedido.
         <br/>
-        <?php _e( 'After we receive the payment confirmation, your order will be processed.', 'modulo-woocommerce' ); ?>
+        Seu pedido será processado tão logo recebermos a confirmação do pagamento.
     </span>
+    <script>
+        window.location.href = "<?= $url ?>";
+    </script>
 </div>

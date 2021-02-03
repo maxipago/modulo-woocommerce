@@ -3,13 +3,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
-<h2><?php _e( 'Payment', 'modulo-woocommerce' ); ?></h2>
+<h2>Pagamento</h2>
 <p class="order_details">
-	<?php _e( 'Please use the link below to pay your Order:', 'modulo-woocommerce' ); ?>
+    Use o link a seguir para pagar seu pedido
     <br/>
-    <a class="button" href="<?php echo $url; ?>" target="_blank">
-		<?php _e( 'Pay the Order', 'modulo-woocommerce' ); ?>
+    <a class="button" href="<?= $url; ?>" target="_blank">
+        Pagar
     </a>
     <br/>
-	<?php _e( 'After we receive the payment confirmation, your order will be processed.', 'modulo-woocommerce' ); ?>
+    Seu pedido será processado tão logo recebermos a confirmação do pagamento.
 </p>

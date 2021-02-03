@@ -4,7 +4,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 <div class="woocommerce-message">
-    <span><?php printf( __( 'Payment successfully: %s in %s.', 'modulo-woocommerce' ),
-		    '<strong>' . $brand . '</strong>',
-		    '<strong>' . $installments . 'x</strong>' ); ?></span>
+    <span>O pagamento com seu <strong><?= $brand ?></strong>&nbsp;
+
+        <?php if ( ! empty( $installments ) ): ?>
+            em <strong><?= $installments ?> vezes</strong>
+        <?php endif; ?>
+
+        foi concluído com sucesso.
+    </span>
 </div>

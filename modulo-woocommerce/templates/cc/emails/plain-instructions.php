@@ -2,7 +2,5 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-_e( 'Payment', 'modulo-woocommerce' );
-echo "\n\n";
-printf( __( 'Payment successfully: %s in %s.', 'modulo-woocommerce' ), $brand, $installments . 'x' );
-echo "\n\n";
+echo "Pagamento\n\n";
+echo "Pagamento concluído com sucesso: " . $brand . " em " . $installments . "x\n\n";

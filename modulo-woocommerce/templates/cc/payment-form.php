@@ -17,13 +17,11 @@ $default_fields = array(
 </p>',
 	'card-expiry-field'      => '<p class="form-row form-row-first">
     <label for="maxipago-card-expiry" style="font-size: 1.20em;">Vencimento<span class="required">*</span></label>
-    <input id="maxipago-card-expiry" name="maxipago_card_expiry" class="input-text wc-credit-card-form-card-expiry" inputmode="numeric" autocomplete="cc-exp" autocorrect="no" autocapitalize="no" spellcheck="no" type="tel" style="font-size: 1.5em; padding: 8px;" placeholder="' . esc_attr__( 'MM / YYYY',
-			'modulo-woocommerce' ) . '" />
+    <input id="maxipago-card-expiry" name="maxipago_card_expiry" class="input-text wc-credit-card-form-card-expiry" inputmode="numeric" autocomplete="cc-exp" autocorrect="no" autocapitalize="no" spellcheck="no" type="tel" style="font-size: 1.5em; padding: 8px;" placeholder="MM / YYYY" />
 </p>',
 	'card-cvc-field'         => '<p class="form-row form-row-last">
     <label for="maxipago-card-cvc" style="font-size: 1.20em;">CVV<span class="required">*</span></label>
-    <input id="maxipago-card-cvc" name="maxipago_card_cvc" class="input-text wc-credit-card-form-card-cvc" inputmode="numeric" autocomplete="off" autocorrect="no" autocapitalize="no" spellcheck="no" type="tel" maxlength="4" placeholder="' . esc_attr__( 'CVV',
-			'modulo-woocommerce' ) . '" style="font-size: 1.5em; padding: 8px;" />
+    <input id="maxipago-card-cvc" name="maxipago_card_cvc" class="input-text wc-credit-card-form-card-cvc" inputmode="numeric" autocomplete="off" autocorrect="no" autocapitalize="no" spellcheck="no" type="tel" maxlength="4" placeholder="CVV" style="font-size: 1.5em; padding: 8px;" />
 </p>'
 );
 $fields         = wp_parse_args( $fields,
@@ -51,12 +49,12 @@ $fields         = wp_parse_args( $fields,
     <fieldset class="fieldset-cvc-token" style="display: none">
         <p class="form-row form-row-first">
             <label for="maxipago-card-cvc-token"
-                   style="font-size: 1.20em;"><?php echo __( 'Security Code', 'modulo-woocommerce' ) ?><span
+                   style="font-size: 1.20em;">CVV<span
                         class="required">*</span></label>
             <input id="maxipago-card-cvc-token" name="maxipago_card_cvc_token"
                    class="input-text wc-credit-card-form-card-cvc" inputmode="numeric" autocomplete="off"
                    autocorrect="no" autocapitalize="no" spellcheck="no" type="tel" maxlength="4"
-                   placeholder="<?php echo esc_attr__( 'CVV', 'modulo-woocommerce' ) ?>"
+                   placeholder="CVV"
                    style="font-size: 1.5em; padding: 8px;"/>
         </p>
 

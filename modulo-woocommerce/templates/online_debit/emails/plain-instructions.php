@@ -2,11 +2,6 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-_e( 'Payment', 'modulo-woocommerce' );
-echo "\n\n";
-_e( 'Please use the link below to pay your Order:', 'modulo-woocommerce' );
-echo "\n";
-echo $url;
-echo "\n";
-_e( 'After we receive the payment confirmation, your order will be processed.', 'modulo-woocommerce' );
-echo "\n\n";
+echo "Pagamento\n\n";
+echo "Por favor, use o link a seguir para pagar seu pedido: " . $url . "\n";
+echo "Seu pedido será processado tão logo recebamos a confirmação de pagamento\n\n";

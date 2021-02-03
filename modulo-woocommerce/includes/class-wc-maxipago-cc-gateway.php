@@ -206,16 +206,16 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC {
 				)
 			),
 			'interest_rate'                 => array(
-				'title'       => 'Taxa de júros das parcelas',
+				'title'       => 'Taxa de juros das parcelas',
 				'type'        => 'text',
-				'description' => 'Taxa de júros que será cobrado no parcelamento',
+				'description' => 'Taxa de juros que será cobrado no parcelamento',
 				'desc_tip'    => true,
 				'default'     => '0'
 			),
 			'interest_rate_caculate_method' => array(
-				'title'       => 'Método de cálculo dos júros',
+				'title'       => 'Método de cálculo dos juros',
 				'type'        => 'select',
-				'description' => 'Escolha o médoto de cálculo dos júros',
+				'description' => 'Escolha o médoto de cálculo dos juros',
 				'desc_tip'    => true,
 				'class'       => 'wc-enhanced-select',
 				'default'     => self::INTEREST_RATE_TYPE_SIMPLE,
@@ -226,7 +226,7 @@ class WC_maxiPago_CC_Gateway extends WC_Payment_Gateway_CC {
 				)
 			),
 			'max_without_interest'          => array(
-				'title'    => 'Número de parcelas sem cobrar júros',
+				'title'    => 'Número de parcelas sem cobrar juros',
 				'type'     => 'select',
 				'desc_tip' => true,
 				'class'    => 'wc-enhanced-select',
