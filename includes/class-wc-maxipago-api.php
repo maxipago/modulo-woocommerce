@@ -283,10 +283,10 @@ abstract class WC_maxiPago_API
             } else {
                 for ($t = 9; $t < 11; $t++) {
                     for ($d = 0, $c = 0; $c < $t; $c++) {
-                        $d += $document{$c} * (($t + 1) - $c);
+                        $d += $document[$c] * (($t + 1) - $c);
                     }
                     $d = ((10 * $d) % 11) % 10;
-                    if ($document{$c} != $d) {
+                    if ($document[$c] != $d) {
                         return false;
                     }
                 }
